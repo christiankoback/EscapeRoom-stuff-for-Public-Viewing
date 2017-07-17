@@ -22,7 +22,11 @@ void setup()
     pinMode(LEDPIN, OUTPUT);
  
     // communication with the host computer
-    Serial.begin(38400);  
+    Serial.begin(9600);  
+    Serial.println("DEBUGGING!!");
+    char number = '7';
+    Serial.write(number );
+    Serial.println("DEBUGGING ENDED!!");
  
     Serial.println("Do not power the BT module");
     Serial.println(" ");
@@ -35,7 +39,7 @@ void setup()
  
     pinMode( 19, INPUT_PULLUP ); // fix Serial1
     // communication with the BT module on serial1
-    Serial1.begin(38400);
+    Serial1.begin(9600);
  
     // LED to show we have started the serial channels
     digitalWrite(LEDPIN, HIGH);  
@@ -51,9 +55,10 @@ void setup()
 void loop() 
 {
     // listen for communication from the BT module and then write it to the serial monitor
-    
-    if ( Serial1.available() )   {
-        Serial.write( Serial1.read() ); 
+    char letter = ' ';
+    if ( Serial1.available() )   { 
+        byte letter = Serial1.read();
+        Serial.write( letter ); 
     }
  
     // listen for user input and send it to the HC-05
