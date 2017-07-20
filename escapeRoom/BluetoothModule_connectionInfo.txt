@@ -1,0 +1,14 @@
+
+CONNECT BLUETOOTH:
+
+1. set name for bluetooth module
+2. set uart communication info
+3. get address of module
+4. set module to be a slave
+	
+
+Admin/ AT commands require the bluetooth module baud rate = 38400
+
+communication to Raspberry Pi, bluetooth module baud rate = 9600
+
+BT_device1 address = 98:D3:31:FC:59:F0
