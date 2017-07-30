@@ -15,17 +15,17 @@ void setup() {
   Serial.begin(9600);
   pixels.begin(); // This initializes the NeoPixel library.
   
-  pixels.setPixelColor(4, pixels.Color(0,255,0)); // Moderately bright green color.
+  pixels.setPixelColor(4, pixels.Color(0,255,0)); // red
   pixels.show(); // This sends the updated pixel color to the hardware.
 
   delay(2000);
   
-  pixels.setPixelColor(5, pixels.Color(255,0,0)); // Moderately bright green color.
+  pixels.setPixelColor(5, pixels.Color(255,0,0)); // green
   pixels.show(); // This sends the updated pixel color to the hardware.
 
   delay(2000);
   
-  pixels.setPixelColor(6, pixels.Color(0,150,150)); // Moderately bright green color.
+  pixels.setPixelColor(6, pixels.Color(0,150,150)); // purple
   pixels.show(); // This sends the updated pixel color to the hardware.
   
 }
