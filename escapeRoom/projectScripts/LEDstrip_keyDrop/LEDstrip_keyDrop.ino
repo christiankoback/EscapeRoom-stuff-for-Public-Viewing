@@ -13,14 +13,19 @@ int ledStripChange = 0;
 int ledRedPin = 5;
 int ledBluePin = 6;
 int ledGreenPin = 9;
+int ledBase = 31;
+int ledEnd = 40;
 
-/*
-void startTesting(){
-  Serial.begin(9600);
-  pinMode(ledRedPin, OUTPUT);
-  pinMode(ledBluePin, OUTPUT);
-  pinMode(ledGreenPin, OUTPUT);
-}
+//magnet variable
+int magnetPin = 10;
+int magnetCodeRange = 10;
+
+//bluetooth stuff
+#ifndef BT_SETUP__
+#define BT_SETUP__
+const int btCodeLength = 3;
+char BTCode[btCodeLength];
+#endif
 
 int checkAnalogValue(int value){
   if( (value >= 0 ) && (value <= 255) ){
@@ -31,6 +36,11 @@ int checkAnalogValue(int value){
   }
 }
 
+void LED_allOff(){
+  analogWrite(ledRedPin,0);
+  analogWrite(ledBluePin,0);
+  analogWrite(ledGreenPin,0);
+}
 void LED_allOn(int redValue, int blueValue, int greenValue){
   if(  ( checkAnalogValue(redValue) == 1) && ( checkAnalogValue(blueValue) == 1) && ( checkAnalogValue(greenValue) == 1) ){
     analogWrite(ledRedPin,redValue);
@@ -73,102 +83,61 @@ void LED_greenOnONLY(int greenValue){
   }
 }
 */
-int turnOn = 0 ;  //0 when off,1 if on 
-int loopCount = 0;  //testing
-int keyDropSensor = 2;
 
 void setup() {
-  //setup led strip to default (all lights on)
-  //setup magnet to work by default
-  startTesting();
-  //Serial.println("starting program");   //testing
-  pinMode(keyDropSensor, OUTPUT);
-  
-/*    //the below works for on-off control
-  pinMode(ledRedPin, OUTPUT);
-  pinMode(ledBluePin, OUTPUT);
-  pinMode(ledGreenPin, OUTPUT);
-  digitalWrite(ledRedPin, HIGH);
-  digitalWrite(ledBluePin, HIGH);
-  digitalWrite(ledGreenPin, HIGH);
-  */
-//  digitalWrite(keyDropSensor, HIGH);
+  //setup for magnet, magnet  is by default ON
+  pinMode(magnetPin, OUTPUT);
+  digitalWrite(magnetPin, HIGH);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+ /*     //testing
   LED_allOn(255, 255, 255);
   delay(1000);
   LED_allOn(125, 125, 125);
   delay(1000);
   LED_allOn(0, 0, 0);
   delay(1000);
-/*
-  LED_allOn(255, 140, 0);     //red, blue, green consecutively
-  Serial.println("led 1 is on");
-  delay(2000);
-  LED_allOn(255, 255, 0);     //red, blue, green consecutively
-  Serial.println("led 2 is on");
-  delay(2000);
-  
-  if ( (loopCount % 2) == 0 ){
-    turnOn = 0;
-  }
-  else if ( ( loopCount % 5) == 0){
-    turnOn = 1;
-  }
-  else{}
   */
-  //if signal is HIGH, magnet is on  --- NC is XX, if signal is LOW, NC is HIGH when on and NC is LOW when off
-  //turn magnet off
- /* if (turnOn == 0){
-    digitalWrite(keyDropSensor, LOW);
-    Serial.println("magnet off");   //testing
-  }
-  else if (turnOn == 1){
-    //turn the magnet on
-    digitalWrite(keyDropSensor, HIGH);
-    Serial.println("magnet on");   //testing
-  }
-  else{}
-  */
-  /*
-  digitalWrite(keyDropSensor, HIGH);
- // Serial.println("magnet on");   //testing
-  delay(5000);
-  
-  
-  digitalWrite(keyDropSensor, LOW);
-  //Serial.println("magnet off");   //testing
-  delay(5000);
-*/
- // loopCount += 1;       //testing
- // delay(1000);
-/*
-  // change LED strip on programmable trigger ( ? )
-  //    if so, do that here
-  if (ledStripChange == 1){
-    // if 1, change led strip to purely green
-    //not done yet
+  if  (Serial1.available() ){
+      int CodeCount = 0;
+      while(Serial1.available() ){
+        BTCode[CodeCount] = Serial1.read();
+        CodeCount ++;
+      }
+      if (CodeCount >= btCodeLength  ){
+        //invalid Bluetooth code
+      }
+      else{
+        int techNum = BTCode[0] -'0';
+        int codeNum = ( (BTCode[1] - '0') * 10 ) + (BTCode[2]- '0');
 
-    ledStripChange = 0;
+        if (techNum == 2){
+          if(  (codeNum >= ledBase) && (codeNum <= ledEnd) ){
+             int functionCode = codeNum - ledBase;
+             if (functionCode == 0){
+                LED_allOff();
+             }
+             else if (functionCode == 1){
+              //custom call 2
+             }
+             else if (functionCode == 2){
+              //custom call 3
+             }
+             else{/*under construction*/}
+          }
+        }
+        else if (techNum == 3){
+           if (codeNum == 1){
+            digitalWrite(magnetPin, HIGH);
+           }
+           else if (codeNum == 2){
+            digitalWrite(magnetPin, LOW);
+           }
+          else{/*under construction*/}
+        }
+        else{/*not a valid code*/}
+      }
   }
-  else if (ledStripChange == 2){
-    //if 2, change to purely red
-    //not done yet
-
-    ledStripChange = 0;
-  }
-  else if (ledStripChange == 3){
-    // if 3, change to purely blue
-    //not done yet
-
-    ledStripChange = 0;
-  }
-  else{}
-  
-  // check sensor for key drop goal
-  //    if goal is reached, release key
-
-*/
 }

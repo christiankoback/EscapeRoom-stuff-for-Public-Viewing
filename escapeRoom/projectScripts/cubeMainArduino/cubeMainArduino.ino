@@ -55,6 +55,9 @@ const int btCodeLength = 3;
 char BTCode[btCodeLength];
 #endif
 
+//headlight pin
+int headlightPin = 49;
+
 //code vardiables
 int glowingWireCodeBase = 21;
 int glowingWireCodeEnd = 30;
@@ -168,9 +171,11 @@ void loop() {
                 int codeFunction = codeNum - glowingWireCodeEnd;
                 if (codeFunction == 1){
                   //turn on headLight
+                  digitalWrite(headlightPin, HIGH);
                 }
                 else if (codeFunction == 2){
                   //turn off headlight
+                  digitalWrite(headlightPin, LOW);
                 }
                 else{/*not enough room for another function*/}
               }
