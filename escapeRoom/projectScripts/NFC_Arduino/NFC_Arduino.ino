@@ -25,6 +25,10 @@ int cat5e3_pin = 11;
 int cat5e4_pin = 10;
 int cat5e5_pin = 9;
 
+int headLightPin = 6;
+int headLight_start = 43;
+int headLight_end = 53;
+
 int ledRingBase = 30;
 int ledRingEnd = 40;
 
@@ -315,7 +319,7 @@ void loop() {
         int codeNum = ( (BTCode[1] - '0') * 10 ) + (BTCode[2]- '0');
 
         if (techNum == 2 ){
-          if( (codeNum > ledRingBase ) && (codeNum <= ledRingEnd + 1 ) ){
+          if ( (codeNum > ledRingBase ) && (codeNum <= ledRingEnd ) ){
               //do associated ledRing function
               int patternToDo = codeNum - ledRingBase;
               if (patternToDo == 0){
@@ -334,10 +338,25 @@ void loop() {
                 //still under construction
               }
             }
+         else if ( (codeNum >= headLight_start ) && (codeNum <= headLight_end ) ){
+            int functionCode = codeNum - headLight_start;
+            if (functionCode == 0){
+              //turn off headlight
+              analogWrite(headLightPin, 0);
+            }
+            else if (functionCode == 1){
+              analogWrite(headLightPin, 255);
+            }
+            else if (functionCode == 2){
+              analogWrite(headLightPin, 127);
+            }
+            else{
+              //under construction
+            }
+         }
+         else{}
         }
-
       }
-      
     }
     
   uint16_t cardUID = retrieveUID();

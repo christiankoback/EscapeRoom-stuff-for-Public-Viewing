@@ -55,15 +55,11 @@ const int btCodeLength = 3;
 char BTCode[btCodeLength];
 #endif
 
-//headlight pin
-int headlightPin = 49;
-
 //code vardiables
 int glowingWireCodeBase = 21;
 int glowingWireCodeEnd = 30;
-int headLightBase= 40;
-int headLightEnd = 42;
-int lolShieldEnd = 44;
+int lolShieldBase = 40;
+int lolShieldEnd = 42;
 int keypadBase = 17;
 int keypadEnd = 18;
 
@@ -165,21 +161,8 @@ void loop() {
                 //still under construction
               }
             }
-            else if (codeNum > headLightBase ){
-              if (codeNum < headLightEnd + 1){
-                //do something with headlight
-                int codeFunction = codeNum - glowingWireCodeEnd;
-                if (codeFunction == 1){
-                  //turn on headLight
-                  digitalWrite(headlightPin, HIGH);
-                }
-                else if (codeFunction == 2){
-                  //turn off headlight
-                  digitalWrite(headlightPin, LOW);
-                }
-                else{/*not enough room for another function*/}
-              }
-              else if (codeNum < lolShieldEnd + 1){
+            else if (codeNum >= lolShieldBase ){
+              if (codeNum <= lolShieldEnd ){
                 //do something with lol shield
                 int codeFunction = codeNum - headLightEnd;
                 if (codeFunction == 1){
