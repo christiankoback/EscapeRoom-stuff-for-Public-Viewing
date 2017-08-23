@@ -1,4 +1,3 @@
-
 #ifndef NFC_CARD_H__
 #define NFC_CARD_H__
 

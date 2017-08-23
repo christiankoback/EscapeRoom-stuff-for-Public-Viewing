@@ -279,7 +279,7 @@ uint8_t white(uint32_t c){
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   //Serial.println("Hello!");   //testing
   nfc.begin();
   nfcSetup();
@@ -292,9 +292,17 @@ void setup() {
   #define SERIAL1_SETUP__
   Serial1.begin(9600);    //bluetooth setup
   #endif
+
 }
 
 void loop() {
+/*    //testing headlight
+  analogWrite(headLightPin, 255);
+  delay(1000);
+  analogWrite(headLightPin, 10);
+  delay(1000);
+  */
+  
   //if bluetooth is used, get all data
   if  (Serial1.available() ){
       int CodeCount = 0;
