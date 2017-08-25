@@ -295,14 +295,7 @@ void setup() {
 
 }
 
-void loop() {
-/*    //testing headlight
-  analogWrite(headLightPin, 255);
-  delay(1000);
-  analogWrite(headLightPin, 10);
-  delay(1000);
-  */
-  
+void loop() {  
   //if bluetooth is used, get all data
   if  (Serial1.available() ){
       int CodeCount = 0;

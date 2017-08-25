@@ -35,55 +35,6 @@ int checkAnalogValue(int value){
     return 0;
   }
 }
-
-void LED_allOff(){
-  analogWrite(ledRedPin,0);
-  analogWrite(ledBluePin,0);
-  analogWrite(ledGreenPin,0);
-}
-void LED_allOn(int redValue, int blueValue, int greenValue){
-  if(  ( checkAnalogValue(redValue) == 1) && ( checkAnalogValue(blueValue) == 1) && ( checkAnalogValue(greenValue) == 1) ){
-    analogWrite(ledRedPin,redValue);
-    analogWrite(ledBluePin,blueValue);
-    analogWrite(ledGreenPin,greenValue);
-  }
-  else{
-    Serial.println("Values for LEDs must be between 0 and 255");
-  }
-}
-
-void LED_blueOnONLY( int blueValue){
-  if ( checkAnalogValue(blueValue) == 1 ){
-    analogWrite(ledRedPin,0);
-    analogWrite(ledBluePin,blueValue);
-    analogWrite(ledGreenPin,0);
-  }
-  else{
-    Serial.println("Values for blue LEDs must be between 0 and 255");
-  }
-}
-void LED_redOnONLY(int redValue){
-  if ( checkAnalogValue(redValue) == 1 ){
-    analogWrite(ledRedPin,redValue);
-    analogWrite(ledBluePin,0);
-    analogWrite(ledGreenPin,0);
-  }
-  else{
-    Serial.println("Values for red LEDs must be between 0 and 255");
-  }
-}
-void LED_greenOnONLY(int greenValue){
-  if ( checkAnalogValue(greenValue) == 1 ){
-  analogWrite(ledRedPin,0);
-  analogWrite(ledBluePin,0);
-  analogWrite(ledGreenPin,greenValue);
-  }
-  else{
-    Serial.println("Values for green LEDs must be between 0 and 255");
-  }
-}
-*/
-
 void setup() {
   //setup for magnet, magnet  is by default ON
   pinMode(magnetPin, OUTPUT);
