@@ -24,7 +24,23 @@ int magnetCodeRange = 10;
 #ifndef BT_SETUP__
 #define BT_SETUP__
 const int btCodeLength = 3;
-char BTCode[btCodeLength];
+byte BTCode[btCodeLength];
+
+void sendBTCode(char * strWord,int strLength){
+  Serial1.write( "0" ); //garbage
+  for (int i = 0; i < strLength; i++){
+    Serial1.write( strWord[i] );
+  }
+}
+
+char* getBTCode(int strLength){
+  char garbage = Serial1.read();
+  char message[strLength];
+  for (int i = 0; i < strLength ; i ++){
+    message[i] = Serial1.read();
+  }
+  return message;
+}
 #endif
 
 int checkAnalogValue(int value){

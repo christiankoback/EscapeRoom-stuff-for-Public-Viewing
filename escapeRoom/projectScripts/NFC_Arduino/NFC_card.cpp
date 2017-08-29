@@ -4,50 +4,39 @@
 int pinLed = 22;
 int pinLed2 = 23;
 char cardTech = '1';
-int codeLength = 2;
+int codeLength = 3;
+
 
 
 void manageCards::doCard0 ( )
 {
   //digitalWrite(pinLed, HIGH);
   //Serial.println("tag 1 was tapped");
-  Serial1.write( cardTech );
-  char message[codeLength] = "01";
-  for (int i = 0; i < codeLength; i++){
-    Serial1.write( message[i] );
-  }
+  char message[codeLength] = {cardTech, '0','1'};
+  sendBTCode(message,codeLength);
 }
 void manageCards::doCard1 ( )
 {
   //digitalWrite(pinLed2, HIGH);
   //Serial.println("tag 2 was tapped");
-  Serial1.write( cardTech );
-  char message[codeLength] = "02";
-  for (int i = 0; i < codeLength; i++){
-    Serial1.write( message[i] );
-  }
+  char message[codeLength] = {cardTech, '0','2'};
+  sendBTCode(message,codeLength);
 }
 void manageCards::doCard2 ( )
 {
   //digitalWrite(pinLed, HIGH);
   //digitalWrite(pinLed2, HIGH);
   //Serial.println("Mifare Classic 1 card was tapped");
-  Serial1.write( cardTech );
-  char message[codeLength] = "03";
-  for (int i = 0; i < codeLength; i++){
-    Serial1.write( message[i] );
-  }
+  char message[codeLength] = {cardTech, '0','3'};
+  sendBTCode(message,codeLength);
 }
 void manageCards::doCard3 ( )
 {
   //digitalWrite(pinLed, HIGH);
   //digitalWrite(pinLed2, HIGH);
   //Serial.println("Mifare Classic 2 card was tapped");
-  Serial1.write( cardTech );
-  char message[codeLength] = "04";
-  for (int i = 0; i < codeLength; i++){
-    Serial1.write( message[i] );
-  }
+  char message[codeLength] = {cardTech, '0','4'};
+  sendBTCode(message,codeLength);
 }
 void manageCards::resetCards(){
   //digitalWrite(pinLed, LOW);

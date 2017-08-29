@@ -33,12 +33,6 @@ void turnOnLetter(char letter){
     } 
     arrayNum += 1;
   }
-
-  Serial.print("index:");
-  Serial.println(index);
-
-  Serial.print("arrayNum:");
-  Serial.println(arrayNum);
   int column1;
   int led0,led1;
   if (index == 0){

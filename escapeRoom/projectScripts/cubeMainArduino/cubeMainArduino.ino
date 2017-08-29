@@ -52,7 +52,23 @@ int cable5_value = 405;
 #ifndef BT_SETUP__
 #define BT_SETUP__
 const int btCodeLength = 3;
-char BTCode[btCodeLength];
+byte BTCode[btCodeLength];
+
+void sendBTCode(char * strWord,int strLength){
+  Serial1.write( "0" ); //garbage
+  for (int i = 0; i < strLength; i++){
+    Serial1.write( strWord[i] );
+  }
+}
+
+char* getBTCode(int strLength){
+  char garbage = Serial1.read();
+  char message[strLength];
+  for (int i = 0; i < strLength ; i ++){
+    message[i] = Serial1.read();
+  }
+  return message;
+}
 #endif
 
 //code vardiables
@@ -73,9 +89,7 @@ void restartKeypad(){
 void checkKeypadOutput(){
   if( (tempKeypadAnswer == keypadAnswer) && (keypadPassIsComplete == 0 ) ){
     keypadPassIsComplete = 1;
-    Serial1.write('3');
-    Serial1.write('1');
-    Serial1.write('8');
+    sendBTCode("318", 3);
   }
   if (keypadPassIsComplete != 1){
     char key = keypad.getKey();
@@ -102,9 +116,9 @@ void checkCat5Puzzle(){
         cat5Puzzle_tempAnswer[i] = 1;
         
         //code base
-        Serial1.write('3');
-        Serial1.write('1');
-        Serial1.write('1' + i);
+        int codeLen = 3;
+        char message[codeLen] = {'3', '1', (char)('1' + i) };
+        sendBTCode(message,codeLen);
       }
     }
   }

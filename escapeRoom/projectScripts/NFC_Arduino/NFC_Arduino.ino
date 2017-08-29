@@ -40,6 +40,22 @@ manageCards cardManager;
 #define BT_SETUP__
 const int btCodeLength = 3;
 byte BTCode[btCodeLength];
+
+void sendBTCode(char * strWord,int strLength){
+  Serial1.write( "0" ); //garbage
+  for (int i = 0; i < strLength; i++){
+    Serial1.write( strWord[i] );
+  }
+}
+
+char* getBTCode(int strLength){
+  char garbage = Serial1.read();
+  char message[strLength];
+  for (int i = 0; i < strLength ; i ++){
+    message[i] = Serial1.read();
+  }
+  return message;
+}
 #endif
 
 
@@ -375,9 +391,7 @@ void loop() {
   }
   if( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ){
     chestButtonPrevValue = 1;
-    for(int i = 0; i < btCodeLength; i++){
-      Serial1.write( chestButtonCode[i] );
-    }  
+    sendBTCode(chestButtonCode, 3);
   }
   delay(500);  //half a second delay between loops
 }

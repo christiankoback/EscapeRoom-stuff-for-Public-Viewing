@@ -15,6 +15,20 @@ int digitalPinBase = 22;    //first digital pin to use for lasers
 int numOfPinsToUse = 17;    //how many lasers to wire
 int endOfPinsBorder = digitalPinBase + numOfPinsToUse;
 
+//bluetooth stuff
+#ifndef BT_SETUP__
+#define BT_SETUP__
+const int btCodeLength = 3;
+byte BTCode[btCodeLength];
+
+void sendBTCode(char * strWord,int strLength){
+  Serial1.write( "0" ); //garbage
+  for (int i = 0; i < strLength; i++){
+    Serial1.write( strWord[i] );
+  }
+}
+#endif
+
 void setup() {
   Serial.begin(9600);
   String laserPinNum = "";
