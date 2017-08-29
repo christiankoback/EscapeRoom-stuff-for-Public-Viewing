@@ -49,10 +49,14 @@ void sendBTCode(char * strWord,int strLength){
 }
 
 char* getBTCode(int strLength){
-  char garbage = Serial1.read();
   char message[strLength];
-  for (int i = 0; i < strLength ; i ++){
-    message[i] = Serial1.read();
+  if  (Serial1.available() ){
+    char garbage = Serial1.read();
+    while(Serial1.available() ){
+      for (int i = 0; i < strLength ; i ++){
+        message[i] = Serial1.read();
+      }
+    }
   }
   return message;
 }
@@ -314,14 +318,7 @@ void setup() {
 void loop() {  
   //if bluetooth is used, get all data
   if  (Serial1.available() ){
-      int CodeCount = 0;
-      while(Serial1.available() ){
-        BTCode[CodeCount] = Serial1.read();
-        CodeCount ++;
-      }
-      if (CodeCount >= btCodeLength  ){
-        //invalid Bluetooth code
-      }
+      BTCode = getBTCode(btCodeLength);
       
       int completeCode = 0;
       for (int i = 0; i < btCodeLength; i ++){

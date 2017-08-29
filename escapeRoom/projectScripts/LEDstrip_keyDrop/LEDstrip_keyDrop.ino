@@ -34,10 +34,14 @@ void sendBTCode(char * strWord,int strLength){
 }
 
 char* getBTCode(int strLength){
-  char garbage = Serial1.read();
   char message[strLength];
-  for (int i = 0; i < strLength ; i ++){
-    message[i] = Serial1.read();
+  if  (Serial1.available() ){
+    char garbage = Serial1.read();
+    while(Serial1.available() ){
+      for (int i = 0; i < strLength ; i ++){
+        message[i] = Serial1.read();
+      }
+    }
   }
   return message;
 }
