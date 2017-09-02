@@ -10,9 +10,9 @@ led strip -> 4 pin, +!2V & RGB pins
 NOTE: ENSURE LED STRIP PINS ARE PWM CAPABLE !!
 */
 int ledStripChange = 0;
-int ledRedPin = 5;
-int ledBluePin = 6;
-int ledGreenPin = 9;
+int ledBluePin = 11;
+int ledRedPin = 12;
+int ledGreenPin = 13;
 int ledBase = 31;
 int ledEnd = 40;
 
@@ -25,6 +25,7 @@ int magnetCodeRange = 10;
 #define BT_SETUP__
 const int btCodeLength = 3;
 byte BTCode[btCodeLength];
+BTCode[0] = ' ';
 
 void sendBTCode(char * strWord,int strLength){
   Serial1.write( "0" ); //garbage
@@ -36,7 +37,7 @@ void sendBTCode(char * strWord,int strLength){
 char* getBTCode(int strLength){
   char message[strLength];
   if  (Serial1.available() ){
-    char garbage = Serial1.read();
+    //char garbage = Serial1.read();
     while(Serial1.available() ){
       for (int i = 0; i < strLength ; i ++){
         message[i] = Serial1.read();
@@ -73,11 +74,8 @@ void loop() {
   */
   if  (Serial1.available() ){
       int CodeCount = 0;
-      while(Serial1.available() ){
-        BTCode[CodeCount] = Serial1.read();
-        CodeCount ++;
-      }
-      if (CodeCount >= btCodeLength  ){
+      BTCode = getBTCode(CodeCount);
+      if (BTCode[0] == ' '  ){
         //invalid Bluetooth code
       }
       else{
@@ -111,4 +109,5 @@ void loop() {
         else{/*not a valid code*/}
       }
   }
+  BTCode[0] = ' ';
 }

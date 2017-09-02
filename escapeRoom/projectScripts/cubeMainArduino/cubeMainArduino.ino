@@ -1,4 +1,4 @@
-#include <btSerial.h>
+//#include <btSerial.h>
 #include <LEDStrip.h>
 #include <Keypad.h>
 
@@ -15,8 +15,8 @@ char keys[ROWS][COLS] = {
   {'7','8','9','C'},
   {'*','0','#','D'}
 };
-byte rowPins[ROWS] = {22, 23, 24, 25}; //connect to the row pinouts of the keypad
-byte colPins[COLS] = {26, 27, 28, 29}; //connect to the column pinouts of the keypad
+byte rowPins[ROWS] = {29, 28, 27, 26}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {25, 24, 23, 22}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 String keypadAnswer = "6175a4d";
 String tempKeypadAnswer = "";
@@ -30,15 +30,17 @@ int glRed = 35;
 int glGreen = 36;
 
 //pins for cat5
-int cat5_1_IN = 37;
-int cat5_2_IN = 38;
-int cat5_3_IN = 39;
-int cat5_4_IN = 40;
-int cat5_5_IN = 41;
+int cat5_1_IN = A11;
+int cat5_2_IN = A12;
+int cat5_3_IN = A13;
+int cat5_4_IN = A14;
+int cat5_5_IN = A15;
 
+//3 black meets 2 white  <= cat5_1 black transmit
 const int CAT5CABLENUM = 5; 
-int cat5Puzzle_pins[CAT5CABLENUM] = {37, 38, 39, 40, 41};
-int cat5Puzzle_answers[CAT5CABLENUM] = {230, 70 , 4 , 1025 , 405};
+int cat5Puzzle_pins[CAT5CABLENUM] = {cat5_1_IN, cat5_2_IN, cat5_3_IN, cat5_4_IN, cat5_5_IN};
+int cat5Puzzle_answersLow[CAT5CABLENUM] = { 1988, 954, 1668  ,74, 394};
+int cat5Puzzle_answersHigh[CAT5CABLENUM] = { 1994, 955 , 1674, 81,401};
 int cat5Puzzle_tempAnswer[CAT5CABLENUM] = {0, 0 , 0, 0, 0};
 
 //random values -- corresponds with PWM pulses 
@@ -64,7 +66,7 @@ void sendBTCode(char * strWord,int strLength){
 char* getBTCode(int strLength){
   char message[strLength];
   if  (Serial1.available() ){
-    char garbage = Serial1.read();
+    //char garbage = Serial1.read();
     while(Serial1.available() ){
       for (int i = 0; i < strLength ; i ++){
         message[i] = Serial1.read();
@@ -93,16 +95,21 @@ void restartKeypad(){
 void checkKeypadOutput(){
   if( (tempKeypadAnswer == keypadAnswer) && (keypadPassIsComplete == 0 ) ){
     keypadPassIsComplete = 1;
-    sendBTCode("318", 3);
+    sendBTCode((char *)"318", 3);
   }
   if (keypadPassIsComplete != 1){
     char key = keypad.getKey();
     if (key){
-      if ( key == keypadAnswer[tempKeypadAnswer.length()] ){
-        tempKeypadAnswer.concat(key);
-      }
-      else{
-        restartKeypad();
+      while(key){
+        Serial.print("key on keypad:");
+        Serial.println(key);
+        if ( key == keypadAnswer[tempKeypadAnswer.length()] ){
+          tempKeypadAnswer.concat(key);
+        }
+        else{
+          restartKeypad();
+        }
+        key = keypad.getKey();
       }
     }
   }
@@ -115,7 +122,8 @@ void resetCat5CablePuzzle(){
 }
 void checkCat5Puzzle(){
   for (int i = 0; i < CAT5CABLENUM; i ++){
-    if ( pulseIn(cat5Puzzle_pins[i], HIGH)  == cat5Puzzle_answers[i] ){
+    int pulseVal = pulseIn(cat5Puzzle_pins[i], HIGH);
+    if( ( pulseVal  >= cat5Puzzle_answersLow[i] ) && ( pulseVal  <= cat5Puzzle_answersHigh[i] ) ){
       if ( cat5Puzzle_tempAnswer[i] == 0 ){
         cat5Puzzle_tempAnswer[i] = 1;
         
@@ -140,11 +148,21 @@ void setup() {
   #define SERIAL1_SETUP__
   Serial1.begin(9600);    //bluetooth setup
   #endif
-  
+
+//glowing wire testing
+ /* 
+  pinMode(glOrange , OUTPUT);
+  pinMode(glBlue , OUTPUT);
+  pinMode(glPink , OUTPUT);
+  pinMode(glRed , OUTPUT);
+  pinMode(glGreen , OUTPUT);
+*/
+
   //init led ring
 
   //init glowing wire
   glowingWireManager.manageGlowingWire::wireSetup();
+  
 }
 
 void loop() {
@@ -152,6 +170,45 @@ void loop() {
         //"turn on glow wire" command
         //"do specific led ring light show" command
         //"change lol lights" command
+
+  //  glowing wire testing
+  /*
+  digitalWrite(glOrange  , HIGH);
+  digitalWrite(glBlue  , HIGH);
+  digitalWrite(glPink  , HIGH);
+  digitalWrite(glRed  , HIGH);
+  digitalWrite(glGreen  , HIGH);
+  delay(1000);
+  digitalWrite(glOrange  , LOW);
+  digitalWrite(glBlue  , LOW);
+  digitalWrite(glPink  , LOW);
+  digitalWrite(glRed  , LOW);
+  digitalWrite(glGreen  , LOW);
+  delay(1000);
+  */
+  //cat5 cable reading
+  /*
+  int cat51 = pulseIn(cat5_1_IN,HIGH);
+  int cat52 = pulseIn(cat5_2_IN,HIGH);
+  int cat53 = pulseIn(cat5_3_IN,HIGH);
+  int cat54 = pulseIn(cat5_4_IN,HIGH);
+  int cat55 = pulseIn(cat5_5_IN,HIGH);
+  
+  Serial.print("cat5-1 cable value = ");
+  Serial.println (cat51);
+  Serial.print("cat5-2 cable value = ");
+  Serial.println (cat52);
+  Serial.print("cat5-3 cable value = ");
+  Serial.println (cat53);
+  Serial.print("cat5-4 cable value = ");
+  Serial.println (cat54);
+  Serial.print("cat5-5 cable value = ");
+  Serial.println (cat55);
+  Serial.println(' ');
+  Serial.println(' ');
+  delay(1000);
+  */
+  
     if  (Serial1.available() ){
       int CodeCount = 0;
       while(Serial1.available() ){
@@ -182,14 +239,16 @@ void loop() {
             else if (codeNum >= lolShieldBase ){
               if (codeNum <= lolShieldEnd ){
                 //do something with lol shield
-                int codeFunction = codeNum - headLightEnd;
+                int codeFunction = codeNum - lolShieldEnd;
                 if (codeFunction == 1){
                   //reset/clear lol shield
                 }
                 else if (codeFunction == 2){
                   //change/increment the pattern on display
                 }
-                else{/*not enough room for another function*/}
+                else{
+                //not enough room for another function
+                }
               }
             }
             else{
@@ -217,6 +276,8 @@ void loop() {
         }
       }
    }
+   
+   
   //check if key on keypad are pressed > if entered password is correct then don't check again
   checkKeypadOutput();
   

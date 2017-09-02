@@ -31,7 +31,7 @@ void sendBTCode(char * strWord,int strLength){
 char* getBTCode(int strLength){
   char message[strLength];
   if  (Serial1.available() ){
-    char garbage = Serial1.read();
+    //char garbage = Serial1.read();
     while(Serial1.available() ){
       for (int i = 0; i < strLength ; i ++){
         message[i] = Serial1.read();
