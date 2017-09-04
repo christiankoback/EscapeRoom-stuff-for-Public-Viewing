@@ -89,7 +89,10 @@ void loop() {
                 LED_allOff();
              }
              else if (functionCode == 1){
-              //custom call 2
+              //custom call 2, turn led strip blue
+              analogWrite(ledBluePin, 255);
+              analogWrite(ledRedPin, 0);
+              analogWrite(ledGreenPin, 0);
              }
              else if (functionCode == 2){
               //custom call 3

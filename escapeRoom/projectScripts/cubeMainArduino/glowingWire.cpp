@@ -1,52 +1,72 @@
 #include "glowingWire.h"
 
 
+//pins for glowing wire
+int glOrange = 32;
+int glBlue = 33;
+int glRed = 34;
+int glPink = 35;
+int glGreen = 36;
 
-int wire1Pin = 1;
-int wire2Pin = 2;
-int wire3Pin = 3;
-int wire4Pin = 4;
-int wire5Pin = 5;
-
+//delay of msDelay, 4 times
+void blink_turnOn(int glowingWirePin, int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,HIGH);
+}
+void blink_turnOff(int glowingWirePin,int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,LOW);
+}
 
 void manageGlowingWire::lightWire0 ( )
 {
-  digitalWrite(wire1Pin, HIGH);
+  blink_turnOn(glOrange, 100);
 }
 void manageGlowingWire::lightWire1 ( )
 {
-  digitalWrite(wire2Pin, HIGH);
+  blink_turnOn(glBlue, 100);
 }
 void manageGlowingWire::lightWire2 ( )
 {
-  digitalWrite(wire3Pin, HIGH);
+  blink_turnOn(glGreen, 100);
 }
 void manageGlowingWire::lightWire3 ( )
 {
-  digitalWrite(wire4Pin, HIGH);
+  blink_turnOn(glRed, 100);
 }
 void manageGlowingWire::lightWire4 ( )
 {
-  digitalWrite(wire5Pin, HIGH);
+  blink_turnOn(glPink, 100);
 }
 void manageGlowingWire::turnOff0 ( )
 {
-  digitalWrite(wire1Pin, LOW);
+  blink_turnOff(glOrange,100);
 }
 void manageGlowingWire::turnOff1 ( )
 {
-  digitalWrite(wire2Pin, LOW);
+  blink_turnOff(glBlue,100);
 }
 void manageGlowingWire::turnOff2 ( )
 {
-  digitalWrite(wire3Pin, LOW);
+  blink_turnOff(glGreen,100);
 }
 void manageGlowingWire::turnOff3 ( )
 {
-  digitalWrite(wire4Pin, LOW);
-}void manageGlowingWire::turnOff4 ( )
+  blink_turnOff(glRed, 100);
+}
+void manageGlowingWire::turnOff4 ( )
 {
-  digitalWrite(wire5Pin, LOW);
+  blink_turnOff(glPink, 100);
 }
 void manageGlowingWire::resetWire(){
 	turnOff0();
@@ -56,11 +76,11 @@ void manageGlowingWire::resetWire(){
 	turnOff4();
 }
 void manageGlowingWire::wireSetup(){
-  pinMode(wire1Pin, OUTPUT);
-  pinMode(wire2Pin, OUTPUT);
-  pinMode(wire3Pin, OUTPUT);
-  pinMode(wire4Pin, OUTPUT);
-  pinMode(wire5Pin, OUTPUT);
+  pinMode(glOrange, OUTPUT);
+  pinMode(glBlue, OUTPUT);
+  pinMode(glGreen, OUTPUT);
+  pinMode(glRed, OUTPUT);
+  pinMode(glPink, OUTPUT);
 }
  // array of function pointers
 const manageGlowingWire::GeneralFunction manageGlowingWire::lightWireAction[5] =

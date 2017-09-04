@@ -1,6 +1,6 @@
 import bluetooth				#handle bluetooth communication
 from threading import Thread	#handle threading
-import Queue					#handle Queue functionality
+from Queue import *				#handle Queue functionality
 import curses, time				#ncurses stuff
 
 #setup connection for all devices, update these
@@ -12,15 +12,21 @@ bd_addr3 = "98:D3:31:FD:68:77" #arduino 4
 #setup socket per device
 port = 1
 
-arduino1_queue = Queue()
-arduino2_queue = Queue()
-arduino3_queue = Queue()
-arduino4_queue = Queue()
+nfcArduino_queue = Queue()
+mainCubeArduino_queue = Queue()
+magnetArduino_queue = Queue()
+laserArduino_queue = Queue()
 raspPi_queue = Queue()
 
+hintCommand = "hint"
+hintWanted = 0;
+cursesPuzzleComplete = 0;
 
+def hintFunction():
+	#light up LED strip - specific command
+	print("hello")
 
-def arduino1Functions():
+def nfcArduinoFunctions():
 	sock0 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock0.connect((bd_addr0,port))
 	while 1: 
@@ -29,14 +35,16 @@ def arduino1Functions():
 		data2 = data[1:] #useful data, add to queue for Pi		
 		if data2:
 			#send data to queue for raspPi
-			raspPi_queue.put(data2,false)	
+			raspPi_queue.put(data2,True)	
 		#handle sending to arduino
-		dataToSend = arduino1_queue.get(false)
-		arduino1_queue.task_done()
-		if dataToSend :
-			sock0.send(dataToSend)
-
-def arduino2Functions():
+		if nfcArduino_queue.empty():
+			pass
+		else:
+			dataToSend = nfcArduino_queue.get(false)
+			if dataToSend :
+				sock0.send(dataToSend)
+			nfcArduino_queue.task_done()
+def mainCubeArduinoFunctions():
 	sock1 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock1.connect((bd_addr1,port))
 	while 1: 
@@ -44,14 +52,16 @@ def arduino2Functions():
 		data = sock0.recv(4)#garbage in the first char, ignore
 		data2 = data[1:] #useful data, add to queue for Pi	
 		if data2:
-			raspPi_queue.put(data2,false)	
+			raspPi_queue.put(data2,True)	
 		#handle sending to arduino
-		dataToSend = arduino2_queue.get(false)
-		arduino2_queue.task_done()
-		if dataToSend :
-			sock1.send(dataToSend)
-
-def arduino3Functions():
+		if mainCubeArduino_queue.empty():
+			pass
+		else:
+			dataToSend = mainCubeArduino_queue.get(false)
+			if dataToSend :
+				sock1.send(dataToSend)
+			mainCubeArduino_queue.task_done()
+def magnetArduinoFunctions():
 	sock2 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock2.connect((bd_addr2,port))
 	while 1: 
@@ -59,14 +69,16 @@ def arduino3Functions():
 		data = sock0.recv(4)#garbage in the first char, ignore
 		data2 = data[1:] #useful data, add to queue for Pi	
 		if data2:
-			raspPi_queue.put(data2,false)	
+			raspPi_queue.put(data2,True)	
 		#handle sending to arduino
-		dataToSend = arduino3_queue.get(false)
-		arduino3_queue.task_done()
-		if dataToSend :
-			sock2.send(dataToSend)
-
-def arduino4Functions():
+		if magnetArduino_queue.empty():
+			pass
+		else:
+			dataToSend = magnetArduino_queue.get(false)
+			magnetArduino_queue.task_done()
+			if dataToSend :
+				sock2.send(dataToSend)
+def laserArduinoFunctions():
 	sock3 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock3.connect((bd_addr3,port))
 	while 1: 
@@ -74,49 +86,83 @@ def arduino4Functions():
 		data = sock0.recv(4)#garbage in the first char, ignore
 		data2 = data[1:] #useful data, add to queue for Pi	
 		if data2:
-			raspPi_queue.put(data2,false)	
+			raspPi_queue.put(data2,True)	
 		#handle sending to arduino
-		dataToSend = arduino3_queue.get(false)
-		arduino4_queue.task_done()
-		if dataToSend :
-			sock3.send(dataToSend)
+		if laserArduino_queue.empty():
+			pass
+		else:
+			dataToSend = laserArduino_queue.get(false)
+			if dataToSend :
+				sock3.send(dataToSend)
+			laserArduino_queue.task_done()
 def mainFunction():
-	dataToProcess = raspPi_queue.get(False)
-	raspPi_queue.task_done()
-	if dataToProcess:
-		if data[0] == '1' : 
-			if data[1:] == '01':
-				#NFC card 1 was tapped
-				print data[1:]
-			if data[1:] == '02':
-				#NFC card 2 was tapped
-				print data[1:]
-			if data[1:] == '03':
-				#NFC card 3 was tapped
-				print data[1:]
-		
-		if data[0] == '3':
-			if data[1:] == '11':
-				#cat5e_1 cable is plugged in and correct
-				print data[1:]
-			if data[1:] == '12':
-				#cat5e_2 cable is plugged in and correct
-				print data[1:]
-			if data[1:] == '13':
-				#cat5e_3 cable is plugged in and correct
-				print data[1:]
-			if data[1:] == '14':
-				#cat5e_4 cable is plugged in and correct
-				print data[1:]
-			if data[1:] == '15':
-				#cat5e_5 cable is plugged in and correct
-				print data[1:]
-			if data[1:] == '16':
-				#chest on cube is open
-				print data[1:]
-			if data[1:] == '18':
-				#keypad password is correct
-				print data[1:]
+	if raspPi_queue.empty():
+		pass
+	else:
+		dataToProcess = raspPi_queue.get(False)
+		if dataToProcess:
+			if data[0] == '1' : 
+				if data[1:] == '01':
+					#NFC card 1 was tapped, start/reset PanTilt laser
+					laserArduino_queue.put("300",True)
+				if data[1:] == '02':
+					#NFC card 2 was tapped
+					mainCubeArduino_queue.put("242", True)
+				if data[1:] == '03':
+					#NFC card 3 was tapped, check finished conditions for curses/box puzzle
+					if cursesPuzzleComplete == 1:
+						#blink long orange glowing wire for 10 sec(on for 1sec, off for 1sec)
+						#keep long orange glowing wire on bright - constant
+						mainCubeArduino_queue.put("222",True)
+					else:
+						#blink long orange glowing wire for 10 sec(on for 1sec, off for 1sec)
+						#turn long orange glowing wire off
+						mainCubeArduino_queue.put("223",True)
+			
+			if data[0] == '3':
+				if data[1:] == '11':
+					#cat5e puzzle is complete
+					print (data[1:])
+				if data[1:] == '12':
+					#cat5e 2 custom
+					print (data[1:])
+				if data[1:] == '13':
+					#cat5e 3 custom
+					print (data[1:])
+				if data[1:] == '14':
+					#cat5e 4 custom
+					print (data[1:])
+				if data[1:] == '15':
+					#cat5e 5 custom
+					print (data[1:])
+				if data[1:] == '16':
+					#chest on cube is open, turn on green glowing wire
+					mainCubeArduino_queue.put("225",True)
+				if data[1:] == '18':
+					#keypad password is correct, light blue glowing wire
+					mainCubeArduino_queue.put("224",True)
+					
+			if data[0] == '5':
+				if data[1:] == '01':
+					#sensor 1 is triggered, PanTilt sensor. turn off magnet?
+					magnetArduino_queue.put("301",True)
+				if data[1:] == '01':
+					#sensor 2 is triggered
+					print (data[1:])
+				if data[1:] == '01':
+					#sensor 3 is triggered
+					print (data[1:])
+				if data[1:] == '01':
+					#sensor 4 is triggered
+					print (data[1:])
+				if data[1:] == '01':
+					#sensor 5 is triggered
+					print (data[1:])
+				if data[1:] == '01':
+					#sensor 6 is triggered
+					print (data[1:])
+		raspPi_queue.task_done()
+
 def ncursesFunction(): 
 	userAnswer = "earth"
 	passAnswer = "goodbye" 
@@ -127,6 +173,7 @@ def ncursesFunction():
 
 	try:
 		mainwindow = curses.initscr()
+		cursesPuzzleComplete = 0
 		mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
 
 		# Some curses-friendly terminal settings
@@ -203,14 +250,19 @@ def ncursesFunction():
 						window2.refresh()
 					else:
 						if (state == "pass"):
-							break
+							cursesPuzzleComplete = 1
+							break		#is this wanted ? ?
 							#isDone = True
 							#while(isDone):
 							#	print ("Done puzzle")		#puzzle is done
 				else:
+					if (tempAnswer == hintCommand):
+						#do hint
+						hintWanted = 0
 					tempAnswer = ""
 					curses.beep()
 					window2.clear()
+					
 			else:		
 				if (tempAnswer == "" and c != "\n" ):
 					tempAnswer = c
@@ -218,32 +270,40 @@ def ncursesFunction():
 					tempAnswer += c
 			window2.refresh()
 	except:
-		window2.clear()
-		window2.refresh()
-
+		cursesPuzzleComplete = 0
+		curses.nocbreak()
+		window2.keypad(False)
+		curses.echo()
+		curses.endwin()
+	cursesPuzzleComplete = 0
 	curses.nocbreak()
 	window2.keypad(False)
 	curses.echo()
 	curses.endwin()
-	
-#arduino1_thread = Thread(target=arduino1Functions, args=(stuff1,stuff2))				
-arduino1_thread = Thread(target=arduino1Functions)
-arduino2_thread = Thread(target=arduino2Functions)
-arduino3_thread = Thread(target=arduino3Functions)
-arduino4_thread = Thread(target=arduino4Functions)
+
+#nfcArduino_thread = Thread(target=nfcArduinoFunctions, args=(stuff1,stuff2))				
+nfcArduino_thread = Thread(target=nfcArduinoFunctions)
+mainCubeArduino_thread = Thread(target=mainCubeArduinoFunctions)
+magnetArduino_thread = Thread(target=magnetArduinoFunctions)
+laserArduino_thread = Thread(target=laserArduinoFunctions)
 mainLogic_thread = Thread(target=mainFunction)
 ncurses_thread = Thread(target=ncursesFunction)
 
-arduino1_thread.setDaemon(True)
-arduino2_thread.setDaemon(True)
-arduino3_thread.setDaemon(True)
-arduino4_thread.setDaemon(True)
+nfcArduino_thread.setDaemon(True)
+mainCubeArduino_thread.setDaemon(True)
+magnetArduino_thread.setDaemon(True)
+laserArduino_thread.setDaemon(True)
 mainLogic_thread.setDaemon(True)
 ncurses_thread.setDaemon(True)
 
-arduino1_thread.start()
-arduino2_thread.start()
-arduino3_thread.start()
-arduino4_thread.start()
+nfcArduino_thread.start()
+mainCubeArduino_thread.start()
+magnetArduino_thread.start()
+laserArduino_thread.start()
 mainLogic_thread.start()
 ncurses_thread.start()
+
+print("hello stranger. welcome to an infinite loop")
+while(1):
+	print("in infinite loop")
+	time.sleep(200)

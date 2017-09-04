@@ -1,8 +1,8 @@
-//#include <btSerial.h>
 #include <LEDStrip.h>
 #include <Keypad.h>
-
-#include "lolfunctions.h"
+#include <avr/pgmspace.h>  //AVR library for writing to ROM
+#include <Charliplexing.h> //Imports the library, which needs to be
+                           //Initialized in setup.
 #include "glowingWire.h"
 
 //global variables
@@ -21,13 +21,96 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 String keypadAnswer = "6175a4d";
 String tempKeypadAnswer = "";
 int keypadPassIsComplete = 0;
+  
+String charPart0= "mskaigf";
+String charPart1 = "qxdo?nh";
+String charPart2 = "et1brvw";
+String charPart3 = "upjycz4";
+String charPart4 = "2519638";
+int brightness = 7;
+void initLoLShield(){
+  LedSign::Init(GRAYSCALE);
+}
+void ClearShield(){
+  LedSign::Clear();
+}
+void  turnOnLetter(char letter){
+  int index = 0;
+  int arrayNum = 0;
+  if ( (index = charPart0.indexOf(letter) )== -1){
+    if ( (index = charPart1.indexOf(letter) )== -1){
+      if ( (index = charPart2.indexOf(letter) )== -1){
+        if ( (index = charPart3.indexOf(letter) )== -1){
+          // character does not exist
+          return;
+        }
+        arrayNum += 1;
+      }
+      arrayNum += 1;
+    } 
+    arrayNum += 1;
+  }
 
+  Serial.print("index:");
+  Serial.println(index);
+
+  Serial.print("arrayNum:");
+  Serial.println(arrayNum);
+  int column1;
+  int led0,led1;
+  if (index == 0){
+    led0 = 0;
+    led1 = 1;
+  }
+  if (index == 1){
+    led0 = 2;
+    led1 = 3;
+  }
+  if (index == 2){
+    led0 = 4;
+    led1 = 5;
+  }
+  if (index == 3){
+    led0 = 6;
+    led1 = 7;
+  }if (index == 4){
+    led0 = 8;
+    led1 = 9;
+  }
+  if (index == 5){
+    led0 = 10;
+    led1 = 11;
+  }
+  if (index == 6){
+    led0 = 12;
+    led1 = 13;
+  }
+
+  if (arrayNum != 0){
+    column1 = 0 + (2 * arrayNum);
+  }
+  else{
+    column1 = 0;
+  }
+  for (int i = 0; i < 2; i++){
+    LedSign::Set(led0 , column1 + i, brightness);
+    LedSign::Set(led1 , column1 + i, brightness);
+  }
+}
+void  turnOnSentence(String sentence){
+  for(int i = 0; i < sentence.length(); i++){
+    turnOnLetter(sentence[i]);
+  }
+}
+
+/*
 //pins for glowing wire
 int glOrange = 32;
 int glBlue = 33;
-int glPink = 34;
-int glRed = 35;
+int glRed = 34;
+int glPink = 35;
 int glGreen = 36;
+*/
 
 //pins for cat5
 int cat5_1_IN = A11;
@@ -50,6 +133,28 @@ int cable3_value = 4;
 int cable4_value = 1025;
 int cable5_value = 405;
 
+//init glowing wire manager class
+manageGlowingWire glowingWireManager;
+
+//init LoL shield manager
+const int lolShieldPatternLength = 3;
+String lolShieldPatterns[lolShieldPatternLength] = {"whic" , "hplanet" ,"hasoxygen?" };
+int lolShieldPatternIndex = 0;
+
+
+//code vardiables
+int glowingWireCodeBase = 21;
+int glowingWireCodeEnd = 30;
+int lolShieldBase = 40;
+int lolShieldEnd = 42;
+int keypadBase = 17;
+int keypadEnd = 18;
+
+
+
+
+
+//functions section
 //bluetooth stuff
 #ifndef BT_SETUP__
 #define BT_SETUP__
@@ -62,7 +167,6 @@ void sendBTCode(char * strWord,int strLength){
     Serial1.write( strWord[i] );
   }
 }
-
 char* getBTCode(int strLength){
   char message[strLength];
   if  (Serial1.available() ){
@@ -76,18 +180,6 @@ char* getBTCode(int strLength){
   return message;
 }
 #endif
-
-//code vardiables
-int glowingWireCodeBase = 21;
-int glowingWireCodeEnd = 30;
-int lolShieldBase = 40;
-int lolShieldEnd = 42;
-int keypadBase = 17;
-int keypadEnd = 18;
-
-//init glowing wire manager class
-manageGlowingWire glowingWireManager;
-
 void restartKeypad(){
   tempKeypadAnswer = "";
   keypadPassIsComplete = 0;
@@ -114,7 +206,6 @@ void checkKeypadOutput(){
     }
   }
 }
-
 void resetCat5CablePuzzle(){
   for (int i = 0; i < CAT5CABLENUM; i ++){
     cat5Puzzle_tempAnswer[i] = 0;
@@ -135,13 +226,35 @@ void checkCat5Puzzle(){
     }
   }
 }
+/*
+//delay of msDelay, 4 times
+void blink_turnOn(int glowingWirePin, int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,HIGH);
+}
+void blink_turnOff(int glowingWirePin,int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,LOW);
+}
+*/
+
+
 
 
 void setup() {
   Serial.begin(9600);   //testing
   restartKeypad();    //init keypad
- // setupLoLShield();   //init lol  shield
-  
+  initLoLShield();    //init lol shield
   
   //init bluetooth
   #ifndef SERIAL1_SETUP__
@@ -150,7 +263,7 @@ void setup() {
   #endif
 
 //glowing wire testing
- /* 
+ /*
   pinMode(glOrange , OUTPUT);
   pinMode(glBlue , OUTPUT);
   pinMode(glPink , OUTPUT);
@@ -167,10 +280,21 @@ void setup() {
 
 void loop() {
   //check bt for command, if so then handle the command
-        //"turn on glow wire" command
-        //"do specific led ring light show" command
-        //"change lol lights" command
+  //"turn on glow wire" command
+  //"do specific led ring light show" command
+  //"change lol lights" command
 
+
+  //change/increment the pattern on display
+  if (lolShieldPatternIndex == lolShieldPatternLength ){
+    lolShieldPatternIndex = 0;
+  }
+  ClearShield();
+  turnOnSentence( lolShieldPatterns[lolShieldPatternIndex] );
+  lolShieldPatternIndex++;
+
+  delay(3000);
+        
   //  glowing wire testing
   /*
   digitalWrite(glOrange  , HIGH);
@@ -208,7 +332,8 @@ void loop() {
   Serial.println(' ');
   delay(1000);
   */
-  
+
+  /*
     if  (Serial1.available() ){
       int CodeCount = 0;
       while(Serial1.available() ){
@@ -227,10 +352,15 @@ void loop() {
             if( codeNum < glowingWireCodeEnd + 1) {
               //turn on associated glowing wire
               int codeFunction = codeNum - glowingWireCodeBase;
-              if (codeFunction < 5){
-                manageGlowingWire::GeneralFunction wireAction = glowingWireManager.manageGlowingWire::lightWireAction[codeFunction];
+              if (codeFunction == 0){
+                //turn off all glowing wire
+                glowingWireManager.resetWire();
+              }else if (codeFunction <= 5){
+                //turn on glowing wire
+                manageGlowingWire::GeneralFunction wireAction = glowingWireManager.manageGlowingWire::lightWireAction[codeFunction-1];
                 (glowingWireManager.*wireAction)();
-               // turnOnGlowingWire(codeNum - glowingWireCodeBase);  
+              }else if (codeFunction == 6){
+                glowingWireManager.turnOff0();
               }
               else{
                 //still under construction
@@ -242,9 +372,16 @@ void loop() {
                 int codeFunction = codeNum - lolShieldEnd;
                 if (codeFunction == 1){
                   //reset/clear lol shield
+                  displayingShield.ClearShield();
                 }
                 else if (codeFunction == 2){
                   //change/increment the pattern on display
+                  if (lolShieldPatternIndex == lolShieldPatternLength ){
+                    lolShieldPatternIndex = 0;
+                  }
+                  displayingShield.ClearShield();
+                  displayingShield.turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
+                  lolShieldPatternIndex++;
                 }
                 else{
                 //not enough room for another function
@@ -283,5 +420,5 @@ void loop() {
   
   //check all cat5e pins to see if they are all on > if all on then don't check
   checkCat5Puzzle();
-  
+  */
 }
