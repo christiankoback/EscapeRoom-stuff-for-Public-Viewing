@@ -15,8 +15,8 @@
 
 
 #define NUM_LEDS 12
-#define PIN 7
-#define BRIGHTNESS 5
+#define PIN 5
+#define BRIGHTNESS 40
 
 //keypad testing info
 //global variables
@@ -173,7 +173,7 @@ int glGreen = 34;
 
 
 //led ring testing
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
 byte neopix_gamma[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -506,8 +506,7 @@ int glowingWireTestingIndex = 0;
 int ledRingTestingIndex = 0;
 void setup() {
   Serial.begin(9600);   //testing
-
-  /*
+/*
   //meant for main arduino
   restartKeypad();    //init keypad
   initLoLShield();    //init lol shield
@@ -518,21 +517,26 @@ void setup() {
   pinMode(glPink , OUTPUT);
   pinMode(glRed , OUTPUT);
   pinMode(glGreen , OUTPUT);
-*/
 
+*/
   //meant for nfc arduino
-  Serial.println("in setup");
   // configure board to read RFID tags
+  nfc.begin();
   nfc.SAMConfig();
+  nfc.setPassiveActivationRetries(0x1f);
   
   setupCat5Puzzle();
   pinMode(chestButtonPin, INPUT_PULLUP);
-  analogWrite(headLightPin, 255); //testing
+  //analogWrite(headLightPin, 0); //testing, obsolete
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
-  strip.clear();
+  strip.show(); // Initialize all pixels to 'off'
+  for(int i = 0 ; i < 12 ; i++){
+    strip.setPixelColor(i, strip.Color(0,255, 0,0 ) );
+  }
   strip.show();
-  Serial.println("end of setup");
+
+  
 }
 
 void loop() {
@@ -591,12 +595,14 @@ void loop() {
   checkKeypadOutput();
   delay(1000);
   
-
 */
-  
+
+ 
   //meant for nfc arduino
-  //strip.setBrightness(int brightness);      // 0 <= brightness <= 8
-  Serial.println("nfc arduino testing");
+  //strip.setBrightness(int brightness);      // 0 <= brightness <= 255
+  /*
+    
+   Serial.println("nfc arduino testing");
   if (ledRingTestingIndex >= 4){
     ledRingTestingIndex = 0;
   }
@@ -626,6 +632,9 @@ void loop() {
   }else{}
 
   ledRingTestingIndex++;
+  */
+  
+  
   //testing if chest is closed
   if (digitalRead(chestButtonPin) == LOW){
     Serial.println("Chest is closed");

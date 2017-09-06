@@ -18,7 +18,7 @@ char keys[ROWS][COLS] = {
 byte rowPins[ROWS] = {29, 28, 27, 26}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {25, 24, 23, 22}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
-String keypadAnswer = "6175a4d";
+String keypadAnswer = "1389527526";
 String tempKeypadAnswer = "";
 int keypadPassIsComplete = 0;
   
@@ -184,27 +184,35 @@ void restartKeypad(){
   tempKeypadAnswer = "";
   keypadPassIsComplete = 0;
 }
-void checkKeypadOutput(){
+// return 1 if recieved a keypad press
+int checkKeypadOutput(){
+  int keyPressed = 0;
   if( (tempKeypadAnswer == keypadAnswer) && (keypadPassIsComplete == 0 ) ){
-    keypadPassIsComplete = 1;
-    sendBTCode((char *)"318", 3);
+    
   }
   if (keypadPassIsComplete != 1){
     char key = keypad.getKey();
     if (key){
-      while(key){
-        Serial.print("key on keypad:");
-        Serial.println(key);
-        if ( key == keypadAnswer[tempKeypadAnswer.length()] ){
-          tempKeypadAnswer.concat(key);
+      keyPressed = 1;
+      if (key == '*'){
+        restartKeypad();
+        keyPressed = 3;
+      }else if ( key == "#"){
+        if ( keypadAnswer == tempKeypadAnswer ){
+          keyPressed = 2;
+          keypadPassIsComplete = 1;
         }
         else{
           restartKeypad();
+          keyPressed = 3;
         }
-        key = keypad.getKey();
+      }
+      else{
+        tempKeypadAnswer.concat(key);
       }
     }
   }
+  return keypressed;
 }
 void resetCat5CablePuzzle(){
   for (int i = 0; i < CAT5CABLENUM; i ++){
@@ -416,7 +424,17 @@ void loop() {
    
    
   //check if key on keypad are pressed > if entered password is correct then don't check again
-  checkKeypadOutput();
+  int keypadResult = checkKeypadOutput();
+  if( (keypadResult == 2 ) && (keypadPassIsComplete ) ){
+    sendBTCode((char *)"318", 3);
+    glowingWireManager.lightWire1();
+  }else if (keypadResult == 1){
+    glowingWireManager.blinkWire(1, 100);
+  }else if (keypadResult == 3){
+    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 100);
+  }else{}
   
   //check all cat5e pins to see if they are all on > if all on then don't check
   checkCat5Puzzle();

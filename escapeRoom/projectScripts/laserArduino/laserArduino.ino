@@ -69,17 +69,17 @@ void setupLaser(int laserPin){
 #ifndef BT_SETUP__
 #define BT_SETUP__
 const int btCodeLength = 3;
-byte BTCode[btCodeLength];
+byte *BTCode;
 
 void sendBTCode(char * strWord,int strLength){
-  Serial1.write( "0" ); //garbage 
+  Serial1.write( "0" ); //garbage
   for (int i = 0; i < strLength; i++){
     Serial1.write( strWord[i] );
   }
 }
 
-char* getBTCode(int strLength){
-  char message[strLength];
+byte* getBTCode(int strLength){
+  byte message[strLength];
   if  (Serial1.available() ){
     //char garbage = Serial1.read();
     while(Serial1.available() ){
@@ -87,6 +87,9 @@ char* getBTCode(int strLength){
         message[i] = Serial1.read();
       }
     }
+  }
+  else{
+    message[0] = ' ';
   }
   return message;
 }
@@ -100,7 +103,7 @@ int magnetBase = 2;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  String laserPinNum = "";
+  Serial1.begin(9600);
 
   ads1015_1.begin();
   ads1015_2.begin();
@@ -112,6 +115,7 @@ void setup() {
 }
 
 void loop() {
+  /*
   servoSensor = ads1015_1.readADC_SingleEnded(0);
   Serial.print("adc value: ");
   Serial.println(servoSensor);
@@ -125,15 +129,11 @@ void loop() {
   stopServoLaser();
   //changeServoLocation();
   //delay(2000);
-  /*
+  */
   // put your main code here, to run repeatedly:
   if  (Serial1.available() ){
-      int CodeCount = 0;
-      BTCode = getBTCode(CodeCount);
-      if (BTCode[0] == ' '  ){
-        //invalid Bluetooth code
-      }
-      else{
+      BTCode = getBTCode(btCodeLength);
+      if (BTCode[0] != ' '  ){
         int techNum = BTCode[0] -'0';
         int codeNum = ( (BTCode[1] - '0') * 10 ) + (BTCode[2]- '0');
 
@@ -144,21 +144,15 @@ void loop() {
               panTiltIndex = 0;
             }
             //move pan tilt servo to next location, loop when out of new locations
-            panServo.write = panLocations[panTiltIndex];
-            tiltServo.write = tiltLocations[panTiltIndex];
+            panServo.write( panLocations[panTiltIndex]);
+            tiltServo.write (tiltLocations[panTiltIndex]);
             delay(30);    //wait for servo to reach location
           }
           else if (codeNum  == panTiltReset){
             panTiltIndex = 0;
-            panServo.write = panLocations[panTiltIndex];
-            tiltServo.write = tiltLocations[panTiltIndex];
+            panServo.write (panLocations[panTiltIndex]);
+            tiltServo.write (tiltLocations[panTiltIndex]);
             delay(30);    //wait for servo to reach location
-          }
-          else if (codeNum == magnetBase){
-            digitalWrite(magnetPin, HIGH);
-          }
-          else if (codeNum == (magnetBase + 1) ){
-            digitalWrite(magnetPin, LOW);
           }
           else{
             //under construction
@@ -175,5 +169,5 @@ void loop() {
           }
       }
   }
-  */
+  
 }

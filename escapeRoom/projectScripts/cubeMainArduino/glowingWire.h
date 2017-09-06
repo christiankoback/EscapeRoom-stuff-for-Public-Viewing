@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 class manageGlowingWire {
-	private:
+	public:
 		void lightWire0 ();
 		void lightWire1 ();
 		void lightWire2 ();
@@ -15,8 +15,8 @@ class manageGlowingWire {
 		void turnOff2 ();
 		void turnOff3 (); 
 		void turnOff4 (); 
-		
-  public:
+
+    void blinkWire(int wire, int msdelay);
     void resetWire();
     void wireSetup();
 	

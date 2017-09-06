@@ -13,8 +13,8 @@ int ledStripChange = 0;
 int ledBluePin = 11;
 int ledRedPin = 12;
 int ledGreenPin = 13;
-int ledBase = 31;
-int ledEnd = 40;
+int ledBase = 0;
+int ledEnd = 2;
 
 //magnet variable
 int magnetPin = 10;
@@ -24,8 +24,7 @@ int magnetCodeRange = 10;
 #ifndef BT_SETUP__
 #define BT_SETUP__
 const int btCodeLength = 3;
-byte BTCode[btCodeLength];
-BTCode[0] = ' ';
+byte *BTCode;
 
 void sendBTCode(char * strWord,int strLength){
   Serial1.write( "0" ); //garbage
@@ -34,8 +33,8 @@ void sendBTCode(char * strWord,int strLength){
   }
 }
 
-char* getBTCode(int strLength){
-  char message[strLength];
+byte* getBTCode(int strLength){
+  byte message[strLength];
   if  (Serial1.available() ){
     //char garbage = Serial1.read();
     while(Serial1.available() ){
@@ -43,6 +42,9 @@ char* getBTCode(int strLength){
         message[i] = Serial1.read();
       }
     }
+  }
+  else{
+    message[0] = ' ';
   }
   return message;
 }
@@ -57,9 +59,16 @@ int checkAnalogValue(int value){
   }
 }
 void setup() {
-  //setup for magnet, magnet  is by default ON
-  pinMode(magnetPin, OUTPUT);
-  digitalWrite(magnetPin, HIGH);
+	//setup for magnet, magnet  is by default ON
+	Serial.begin(9600);	//testing
+	Serial1.begin(9600);	//bluetooth - tx1,rx1
+	pinMode(magnetPin, OUTPUT);
+	digitalWrite(magnetPin, HIGH);
+
+	analogWrite(ledBluePin, 0);
+	analogWrite(ledRedPin, 105);
+	analogWrite(ledGreenPin, 0);
+
 }
 
 void loop() {
@@ -86,16 +95,21 @@ void loop() {
           if(  (codeNum >= ledBase) && (codeNum <= ledEnd) ){
              int functionCode = codeNum - ledBase;
              if (functionCode == 0){
-                LED_allOff();
+                analogWrite(ledBluePin, 0);
+                analogWrite(ledRedPin, 0);
+                analogWrite(ledGreenPin, 0);
              }
              else if (functionCode == 1){
-              //custom call 2, turn led strip blue
-              analogWrite(ledBluePin, 255);
-              analogWrite(ledRedPin, 0);
-              analogWrite(ledGreenPin, 0);
+                //custom call 2, turn led strip red
+                analogWrite(ledBluePin, 0);
+                analogWrite(ledRedPin, 105);
+                analogWrite(ledGreenPin, 0);
              }
              else if (functionCode == 2){
-              //custom call 3
+              //custom call 3, turn led strip blue
+				analogWrite(ledBluePin, 125);
+                analogWrite(ledRedPin, 0);
+                analogWrite(ledGreenPin, 0);
              }
              else{/*under construction*/}
           }
@@ -112,5 +126,4 @@ void loop() {
         else{/*not a valid code*/}
       }
   }
-  BTCode[0] = ' ';
 }

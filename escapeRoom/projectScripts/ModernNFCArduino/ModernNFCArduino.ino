@@ -3,8 +3,6 @@
 #include <Adafruit_PN532.h>
 #include <Adafruit_NeoPixel.h>  //led ring functionality
 
-//#include "NFC_card.h"
-
 //bluetooth stuff
 #ifndef BT_CUSTOM_SETUP
 #define BT_CUSTOM_SETUP
@@ -133,7 +131,24 @@ uint8_t cardNum = 3;    //4 is hardcoded value in (manageCards class)
 int headLightPin = 6;
 int headLight_start = 43;
 int headLight_end = 53;
-
+int fullBrightness_headlight = 255;
+int isHeadlightBreathing = 1;
+void headlightBreathing(){
+  for(int i = 0; i <= fullBrightness_headlight; i++){
+    analogWrite(headLightPin, i);
+    delay(50);
+  }
+  for(int i = fullBrightness_headlight; i > 0; i--){
+    analogWrite(headLightPin, i);
+    delay(50);
+  } 
+}
+void headLight_fadeBright(){
+  for(int i = 0; i <= fullBrightness_headlight; i++){
+    analogWrite(headLightPin, i);
+    delay(50);
+  }
+}
 int ledRingBase = 30;
 int ledRingEnd = 40;
 
@@ -141,7 +156,7 @@ int ledRingEnd = 40;
 manageCards cardManager;
 
 #define NUM_LEDS 12
-#define PIN 9
+#define PIN 5
 
 //led ring stuff
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGBW + NEO_KHZ800);
@@ -386,9 +401,9 @@ uint8_t white(uint32_t c){
 void setup() {
   
   Serial.begin(9600);
-  Serial.println("Hello!");   //testing
-  //analogWrite(headLightPin, 255); //testing
-
+  nfc.begin();
+  nfc.SAMConfig();
+  nfc.setPassiveActivationRetries(0x1F);  // make the nfc more like a non-blocking function - try finding card 32 times
   
 
   cardManager.manageCards::cardSetup();
@@ -413,7 +428,7 @@ void loop() {
   else{}
   delay(1000);up
   */
-  /*
+  
     if  (Serial1.available() ){
       int CodeCount = 0;
       while(Serial1.available() ){
@@ -458,6 +473,7 @@ void loop() {
               }
            else if ( (codeNum >= headLight_start ) && (codeNum <= headLight_end ) ){
               int functionCode = codeNum - headLight_start;
+              isHeadlightBreathing = 0;
               if (functionCode == 0){
                 //turn off headlight
                 analogWrite(headLightPin, 0);
@@ -466,9 +482,10 @@ void loop() {
                 analogWrite(headLightPin, 255);
               }
               else if (functionCode == 2){
-                analogWrite(headLightPin, 127);
-              }
-              else{
+                isHeadlightBreathing = 1;
+              }else if (functionCode == 3){
+                headLight_fadeBright;
+              }else{
                 //under construction
               }
            }
@@ -492,6 +509,8 @@ void loop() {
     chestButtonPrevValue = 1;
     sendBTCode(chestButtonCode, 3);
   }
-  delay(500);  //half a second delay between loops
-*/
+  if (isHeadlightBreathing == 1){
+    headlightBreathing();
+  }
+
 }

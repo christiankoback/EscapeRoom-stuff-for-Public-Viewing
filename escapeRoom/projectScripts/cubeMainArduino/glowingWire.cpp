@@ -18,16 +18,37 @@ void blink_turnOn(int glowingWirePin, int msDelay){
   }
   digitalWrite(glowingWirePin,HIGH);
 }
-void blink_turnOff(int glowingWirePin,int msDelay){
+//delay of msDelay, 4 times
+void blink_turnOn(int glowingWirePin, int msDelay){
   for(int i = 0; i < 4; i++){
     digitalWrite(glowingWirePin,HIGH);
     delay(msDelay);
     digitalWrite(glowingWirePin,LOW);
     delay(msDelay);
   }
-  digitalWrite(glowingWirePin,LOW);
+  digitalWrite(glowingWirePin,HIGH);
+}
+void blinkGlowingWire(int glowingWirePin,int msDelay){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
 }
 
+void manageGlowingWire::blinkWire(int wire, int msDelay){
+  if (wire == 0){
+    blinkGlowingWire(glOrange, 100);
+  }else if (wire ==1){
+    blinkGlowingWire(glBlue, 100);
+  }
+  else if (wire == 2){
+    blinkGlowingWire(glGreen, 100);
+  }else if (wire == 3){
+    blinkGlowingWire(glRed, 100);
+  }else if (wire ==4){
+    blinkGlowingWire(glPink, 100);
+  }else{}
+}
 void manageGlowingWire::lightWire0 ( )
 {
   blink_turnOn(glOrange, 100);
