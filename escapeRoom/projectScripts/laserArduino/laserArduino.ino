@@ -139,7 +139,7 @@ void setup() {
   ads1015_4.begin();
 
   setupServoLaser();
-  startServoLaser();    //testing
+  //startServoLaser();    //testing
 }
 int codeLen = 3;
 int tempLaser = 0;

@@ -420,7 +420,7 @@ void loop() {
                 if (codeFunction == 1){
                   //reset/clear lol shield
                   ClearShield();
-                  glowingWireManager.blinkWire(3, 500);
+                  glowingWireManager.blinkWire(3, 1000);
                 }
                 else if (codeFunction == 2){
                   //change/increment the pattern on display
@@ -430,7 +430,7 @@ void loop() {
                   ClearShield();
                   turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
                   lolShieldPatternIndex++;
-                  glowingWireManager.blinkWire(3, 500);
+                  glowingWireManager.blinkWire(3, 1000);
                 }
                 else{
                 //not enough room for another function
@@ -470,11 +470,11 @@ void loop() {
     sendBTCode((char *)"318", 3);
     glowingWireManager.lightWire1();
   }else if (keypadResult == 1){
-    glowingWireManager.blinkWire(1, 500);
+    glowingWireManager.blinkWire(1, 1000);
   }else if (keypadResult == 3){
-    glowingWireManager.blinkWire(1, 500);
-    glowingWireManager.blinkWire(1, 500);
-    glowingWireManager.blinkWire(1, 500);
+    glowingWireManager.blinkWire(1, 1000);
+    glowingWireManager.blinkWire(1, 1000);
+    glowingWireManager.blinkWire(1, 1000);
   }else{}
   
   //check all cat5e pins to see if they are all on > if all on then don't check
