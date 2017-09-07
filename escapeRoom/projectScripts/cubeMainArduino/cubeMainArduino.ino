@@ -3,7 +3,6 @@
 #include <avr/pgmspace.h>  //AVR library for writing to ROM
 #include <Charliplexing.h> //Imports the library, which needs to be
                            //Initialized in setup.
-#include "glowingWire.h"
 
 //global variables
 //keypad setup variables
@@ -103,14 +102,150 @@ void  turnOnSentence(String sentence){
   }
 }
 
-/*
+class manageGlowingWire {
+  public:
+    void lightWire0 ();
+    void lightWire1 ();
+    void lightWire2 ();
+    void lightWire3 (); 
+    void lightWire4 (); 
+    
+    void turnOff0 (); 
+    void turnOff1 ();
+    void turnOff2 ();
+    void turnOff3 (); 
+    void turnOff4 (); 
+
+    void blinkWire(int wire, int msdelay);
+    void resetWire();
+    void wireSetup();
+  
+   // typedef for class function
+   typedef void (manageGlowingWire::*GeneralFunction) ();
+   static const GeneralFunction lightWireAction [5];
+   static const GeneralFunction turnOffAction [5];
+   
+};
 //pins for glowing wire
 int glOrange = 32;
 int glBlue = 33;
 int glRed = 34;
 int glPink = 35;
 int glGreen = 36;
-*/
+
+//delay of msDelay, 4 times
+void blink_turnOn(int glowingWirePin, int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,HIGH);
+}
+//delay of msDelay, 4 times
+void blink_turnOff(int glowingWirePin, int msDelay){
+  for(int i = 0; i < 4; i++){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+  }
+  digitalWrite(glowingWirePin,LOW);
+}
+void blinkGlowingWire(int glowingWirePin,int msDelay){
+    digitalWrite(glowingWirePin,HIGH);
+    delay(msDelay);
+    digitalWrite(glowingWirePin,LOW);
+    delay(msDelay);
+}
+
+void manageGlowingWire::blinkWire(int wire, int msDelay){
+  if (wire == 0){
+    blinkGlowingWire(glOrange, 100);
+  }else if (wire ==1){
+    blinkGlowingWire(glBlue, 100);
+  }
+  else if (wire == 2){
+    blinkGlowingWire(glGreen, 100);
+  }else if (wire == 3){
+    blinkGlowingWire(glRed, 100);
+  }else if (wire ==4){
+    blinkGlowingWire(glPink, 100);
+  }else{}
+}
+void manageGlowingWire::lightWire0 ( )
+{
+  blink_turnOn(glOrange, 100);
+}
+void manageGlowingWire::lightWire1 ( )
+{
+  blink_turnOn(glBlue, 100);
+}
+void manageGlowingWire::lightWire2 ( )
+{
+  blink_turnOn(glGreen, 100);
+}
+void manageGlowingWire::lightWire3 ( )
+{
+  blink_turnOn(glRed, 100);
+}
+void manageGlowingWire::lightWire4 ( )
+{
+  blink_turnOn(glPink, 100);
+}
+void manageGlowingWire::turnOff0 ( )
+{
+  blink_turnOff(glOrange,100);
+}
+void manageGlowingWire::turnOff1 ( )
+{
+  blink_turnOff(glBlue,100);
+}
+void manageGlowingWire::turnOff2 ( )
+{
+  blink_turnOff(glGreen,100);
+}
+void manageGlowingWire::turnOff3 ( )
+{
+  blink_turnOff(glRed, 100);
+}
+void manageGlowingWire::turnOff4 ( )
+{
+  blink_turnOff(glPink, 100);
+}
+void manageGlowingWire::resetWire(){
+  turnOff0();
+  turnOff1();
+  turnOff2();
+  turnOff3();
+  turnOff4();
+}
+void manageGlowingWire::wireSetup(){
+  pinMode(glOrange, OUTPUT);
+  pinMode(glBlue, OUTPUT);
+  pinMode(glGreen, OUTPUT);
+  pinMode(glRed, OUTPUT);
+  pinMode(glPink, OUTPUT);
+}
+ // array of function pointers
+const manageGlowingWire::GeneralFunction manageGlowingWire::lightWireAction[5] =
+  {
+    &manageGlowingWire::lightWire0, 
+    &manageGlowingWire::lightWire1, 
+    &manageGlowingWire::lightWire2, 
+    &manageGlowingWire::lightWire3,
+  &manageGlowingWire::lightWire4
+  };
+   // array of function pointers
+const manageGlowingWire::GeneralFunction manageGlowingWire::turnOffAction[5] =
+  {
+    &manageGlowingWire::turnOff0, 
+    &manageGlowingWire::turnOff1, 
+    &manageGlowingWire::turnOff2, 
+    &manageGlowingWire::turnOff3,
+  &manageGlowingWire::turnOff4
+  };
 
 //pins for cat5
 int cat5_1_IN = A11;
@@ -153,13 +288,12 @@ int keypadEnd = 18;
 
 
 
-
 //functions section
 //bluetooth stuff
 #ifndef BT_SETUP__
 #define BT_SETUP__
 const int btCodeLength = 3;
-byte BTCode[btCodeLength];
+byte *BTCode;
 
 void sendBTCode(char * strWord,int strLength){
   Serial1.write( "0" ); //garbage
@@ -167,8 +301,9 @@ void sendBTCode(char * strWord,int strLength){
     Serial1.write( strWord[i] );
   }
 }
-char* getBTCode(int strLength){
-  char message[strLength];
+
+byte* getBTCode(int strLength){
+  byte message[strLength];
   if  (Serial1.available() ){
     //char garbage = Serial1.read();
     while(Serial1.available() ){
@@ -176,6 +311,9 @@ char* getBTCode(int strLength){
         message[i] = Serial1.read();
       }
     }
+  }
+  else{
+    message[0] = ' ';
   }
   return message;
 }
@@ -187,9 +325,6 @@ void restartKeypad(){
 // return 1 if recieved a keypad press
 int checkKeypadOutput(){
   int keyPressed = 0;
-  if( (tempKeypadAnswer == keypadAnswer) && (keypadPassIsComplete == 0 ) ){
-    
-  }
   if (keypadPassIsComplete != 1){
     char key = keypad.getKey();
     if (key){
@@ -212,7 +347,7 @@ int checkKeypadOutput(){
       }
     }
   }
-  return keypressed;
+  return keyPressed;
 }
 void resetCat5CablePuzzle(){
   for (int i = 0; i < CAT5CABLENUM; i ++){
@@ -234,33 +369,9 @@ void checkCat5Puzzle(){
     }
   }
 }
-/*
-//delay of msDelay, 4 times
-void blink_turnOn(int glowingWirePin, int msDelay){
-  for(int i = 0; i < 4; i++){
-    digitalWrite(glowingWirePin,HIGH);
-    delay(msDelay);
-    digitalWrite(glowingWirePin,LOW);
-    delay(msDelay);
-  }
-  digitalWrite(glowingWirePin,HIGH);
-}
-void blink_turnOff(int glowingWirePin,int msDelay){
-  for(int i = 0; i < 4; i++){
-    digitalWrite(glowingWirePin,HIGH);
-    delay(msDelay);
-    digitalWrite(glowingWirePin,LOW);
-    delay(msDelay);
-  }
-  digitalWrite(glowingWirePin,LOW);
-}
-*/
-
-
 
 
 void setup() {
-  Serial.begin(9600);   //testing
   restartKeypad();    //init keypad
   initLoLShield();    //init lol shield
   
@@ -270,88 +381,16 @@ void setup() {
   Serial1.begin(9600);    //bluetooth setup
   #endif
 
-//glowing wire testing
- /*
-  pinMode(glOrange , OUTPUT);
-  pinMode(glBlue , OUTPUT);
-  pinMode(glPink , OUTPUT);
-  pinMode(glRed , OUTPUT);
-  pinMode(glGreen , OUTPUT);
-*/
-
-  //init led ring
-
   //init glowing wire
   glowingWireManager.manageGlowingWire::wireSetup();
   
 }
 
 void loop() {
-  //check bt for command, if so then handle the command
-  //"turn on glow wire" command
-  //"do specific led ring light show" command
-  //"change lol lights" command
-
-
-  //change/increment the pattern on display
-  if (lolShieldPatternIndex == lolShieldPatternLength ){
-    lolShieldPatternIndex = 0;
-  }
-  ClearShield();
-  turnOnSentence( lolShieldPatterns[lolShieldPatternIndex] );
-  lolShieldPatternIndex++;
-
-  delay(3000);
-        
-  //  glowing wire testing
-  /*
-  digitalWrite(glOrange  , HIGH);
-  digitalWrite(glBlue  , HIGH);
-  digitalWrite(glPink  , HIGH);
-  digitalWrite(glRed  , HIGH);
-  digitalWrite(glGreen  , HIGH);
-  delay(1000);
-  digitalWrite(glOrange  , LOW);
-  digitalWrite(glBlue  , LOW);
-  digitalWrite(glPink  , LOW);
-  digitalWrite(glRed  , LOW);
-  digitalWrite(glGreen  , LOW);
-  delay(1000);
-  */
-  //cat5 cable reading
-  /*
-  int cat51 = pulseIn(cat5_1_IN,HIGH);
-  int cat52 = pulseIn(cat5_2_IN,HIGH);
-  int cat53 = pulseIn(cat5_3_IN,HIGH);
-  int cat54 = pulseIn(cat5_4_IN,HIGH);
-  int cat55 = pulseIn(cat5_5_IN,HIGH);
   
-  Serial.print("cat5-1 cable value = ");
-  Serial.println (cat51);
-  Serial.print("cat5-2 cable value = ");
-  Serial.println (cat52);
-  Serial.print("cat5-3 cable value = ");
-  Serial.println (cat53);
-  Serial.print("cat5-4 cable value = ");
-  Serial.println (cat54);
-  Serial.print("cat5-5 cable value = ");
-  Serial.println (cat55);
-  Serial.println(' ');
-  Serial.println(' ');
-  delay(1000);
-  */
-
-  /*
     if  (Serial1.available() ){
-      int CodeCount = 0;
-      while(Serial1.available() ){
-        BTCode[CodeCount] = Serial1.read();
-        CodeCount ++;
-      }
-      if (CodeCount >= btCodeLength  ){
-        //invalid Bluetooth code
-      }
-      else{
+      BTCode = getBTCode(btCodeLength);
+      if (BTCode[0] != ' '  ){
         int techNum = BTCode[0] -'0';
         int codeNum = ( (BTCode[1] - '0') * 10 ) + (BTCode[2]- '0');
 
@@ -380,16 +419,18 @@ void loop() {
                 int codeFunction = codeNum - lolShieldEnd;
                 if (codeFunction == 1){
                   //reset/clear lol shield
-                  displayingShield.ClearShield();
+                  ClearShield();
+                  glowingWireManager.blinkWire(3, 500);
                 }
                 else if (codeFunction == 2){
                   //change/increment the pattern on display
                   if (lolShieldPatternIndex == lolShieldPatternLength ){
                     lolShieldPatternIndex = 0;
                   }
-                  displayingShield.ClearShield();
-                  displayingShield.turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
+                  ClearShield();
+                  turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
                   lolShieldPatternIndex++;
+                  glowingWireManager.blinkWire(3, 500);
                 }
                 else{
                 //not enough room for another function
@@ -429,14 +470,14 @@ void loop() {
     sendBTCode((char *)"318", 3);
     glowingWireManager.lightWire1();
   }else if (keypadResult == 1){
-    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 500);
   }else if (keypadResult == 3){
-    glowingWireManager.blinkWire(1, 100);
-    glowingWireManager.blinkWire(1, 100);
-    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 500);
+    glowingWireManager.blinkWire(1, 500);
+    glowingWireManager.blinkWire(1, 500);
   }else{}
   
   //check all cat5e pins to see if they are all on > if all on then don't check
   checkCat5Puzzle();
-  */
+  
 }

@@ -4,10 +4,10 @@
 #include <Adafruit_NeoPixel.h>  //led ring functionality
 
 //bluetooth stuff
-#ifndef BT_CUSTOM_SETUP
-#define BT_CUSTOM_SETUP
+#ifndef BT_SETUP__
+#define BT_SETUP__
 const int btCodeLength = 3;
-byte BTCode[btCodeLength];
+byte *BTCode;
 
 void sendBTCode(char * strWord,int strLength){
   Serial1.write( "0" ); //garbage
@@ -16,8 +16,8 @@ void sendBTCode(char * strWord,int strLength){
   }
 }
 
-char* getBTCode(int strLength){
-  char message[strLength];
+byte* getBTCode(int strLength){
+  byte message[strLength];
   if  (Serial1.available() ){
     //char garbage = Serial1.read();
     while(Serial1.available() ){
@@ -26,9 +26,11 @@ char* getBTCode(int strLength){
       }
     }
   }
+  else{
+    message[0] = ' ';
+  }
   return message;
 }
-
 #endif
 
 
@@ -128,6 +130,7 @@ uint16_t validCards[] = { 650 , 761, 276 };
 uint16_t cardUID;
 uint8_t cardNum = 3;    //4 is hardcoded value in (manageCards class)
 
+/*
 int headLightPin = 6;
 int headLight_start = 43;
 int headLight_end = 53;
@@ -148,7 +151,7 @@ void headLight_fadeBright(){
     analogWrite(headLightPin, i);
     delay(50);
   }
-}
+}*/
 int ledRingBase = 30;
 int ledRingEnd = 40;
 
@@ -159,7 +162,7 @@ manageCards cardManager;
 #define PIN 5
 
 //led ring stuff
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_RGBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
 byte neopix_gamma[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -396,15 +399,12 @@ uint8_t white(uint32_t c){
   return (c >> 24);
 }
 
-
+const int BRIGHTNESS = 40;
 
 void setup() {
-  
-  Serial.begin(9600);
   nfc.begin();
   nfc.SAMConfig();
   nfc.setPassiveActivationRetries(0x1F);  // make the nfc more like a non-blocking function - try finding card 32 times
-  
 
   cardManager.manageCards::cardSetup();
   setupCat5Puzzle();
@@ -414,7 +414,13 @@ void setup() {
   #define SERIAL1_SETUP__
   Serial1.begin(9600);    //bluetooth setup
   #endif
-  
+  strip.setBrightness(BRIGHTNESS);
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+  for(int i = 0 ; i < 12 ; i++){
+    strip.setPixelColor(i, strip.Color(0,255, 0,0 ) );
+  }
+  strip.show();
 }
 
 void loop() {
@@ -430,15 +436,8 @@ void loop() {
   */
   
     if  (Serial1.available() ){
-      int CodeCount = 0;
-      while(Serial1.available() ){
-        BTCode[CodeCount] = Serial1.read();
-        CodeCount ++;
-      }
-      if (CodeCount >= btCodeLength  ){
-        //invalid Bluetooth code
-      }
-      else{
+      BTCode = getBTCode(btCodeLength);
+      if (BTCode[0] != ' '  ){
         int completeCode = 0;
         for (int i = 0; i < btCodeLength; i ++){    
           completeCode = ( BTCode[i] - '0')  * pow(10, btCodeLength - (i+1) );
@@ -471,7 +470,7 @@ void loop() {
                   //still under construction
                 }
               }
-           else if ( (codeNum >= headLight_start ) && (codeNum <= headLight_end ) ){
+         /*  else if ( (codeNum >= headLight_start ) && (codeNum <= headLight_end ) ){
               int functionCode = codeNum - headLight_start;
               isHeadlightBreathing = 0;
               if (functionCode == 0){
@@ -488,7 +487,7 @@ void loop() {
               }else{
                 //under construction
               }
-           }
+           }*/
            else{}
           }
         }
@@ -509,8 +508,8 @@ void loop() {
     chestButtonPrevValue = 1;
     sendBTCode(chestButtonCode, 3);
   }
-  if (isHeadlightBreathing == 1){
+  /*if (isHeadlightBreathing == 1){
     headlightBreathing();
-  }
+  }*/
 
 }

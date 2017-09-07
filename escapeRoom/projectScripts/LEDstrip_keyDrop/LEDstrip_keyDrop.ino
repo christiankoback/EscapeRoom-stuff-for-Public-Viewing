@@ -10,16 +10,25 @@ led strip -> 4 pin, +!2V & RGB pins
 NOTE: ENSURE LED STRIP PINS ARE PWM CAPABLE !!
 */
 int ledStripChange = 0;
-int ledBluePin = 11;
-int ledRedPin = 12;
-int ledGreenPin = 13;
+int ledGreenPin = 11;
+int ledBluePin = 12;
+int ledRedPin = 13;
 int ledBase = 0;
 int ledEnd = 2;
 
 //magnet variable
 int magnetPin = 10;
+int armedMagnetPin = 9;
 int magnetCodeRange = 10;
 
+void turnOnMagnetBox(){
+  digitalWrite(magnetPin, HIGH);
+  digitalWrite(armedMagnetPin,HIGH);
+}
+void turnOffMagnetBox(){
+  digitalWrite(magnetPin, LOW);
+  digitalWrite(armedMagnetPin,LOW);
+}
 //bluetooth stuff
 #ifndef BT_SETUP__
 #define BT_SETUP__
@@ -58,29 +67,25 @@ int checkAnalogValue(int value){
     return 0;
   }
 }
+
+int redMax  = 150;
+int blueMax = 125;
 void setup() {
 	//setup for magnet, magnet  is by default ON
-	Serial.begin(9600);	//testing
+	//Serial.begin(9600);	//testing
 	Serial1.begin(9600);	//bluetooth - tx1,rx1
 	pinMode(magnetPin, OUTPUT);
-	digitalWrite(magnetPin, HIGH);
+  pinMode(armedMagnetPin,OUTPUT);
+	turnOnMagnetBox();
 
 	analogWrite(ledBluePin, 0);
-	analogWrite(ledRedPin, 105);
+	analogWrite(ledRedPin, redMax);
 	analogWrite(ledGreenPin, 0);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
- /*     //testing
-  LED_allOn(255, 255, 255);
-  delay(1000);
-  LED_allOn(125, 125, 125);
-  delay(1000);
-  LED_allOn(0, 0, 0);
-  delay(1000);
-  */
+  
   if  (Serial1.available() ){
       int CodeCount = 0;
       BTCode = getBTCode(CodeCount);
@@ -102,28 +107,35 @@ void loop() {
              else if (functionCode == 1){
                 //custom call 2, turn led strip red
                 analogWrite(ledBluePin, 0);
-                analogWrite(ledRedPin, 105);
+                analogWrite(ledRedPin, redMax);
                 analogWrite(ledGreenPin, 0);
              }
              else if (functionCode == 2){
               //custom call 3, turn led strip blue
-				analogWrite(ledBluePin, 125);
+				        analogWrite(ledBluePin, blueMax);
                 analogWrite(ledRedPin, 0);
                 analogWrite(ledGreenPin, 0);
              }
-             else{/*under construction*/}
+             else{
+             //under construction
+             }
           }
         }
         else if (techNum == 3){
            if (codeNum == 1){
-            digitalWrite(magnetPin, HIGH);
+            turnOnMagnetBox();
            }
            else if (codeNum == 2){
-            digitalWrite(magnetPin, LOW);
+            turnOffMagnetBox();
            }
-          else{/*under construction*/}
+          else{
+          //under construction
+          }
         }
-        else{/*not a valid code*/}
+        else{
+          //not a valid code
+          }
       }
   }
+  
 }

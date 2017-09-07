@@ -5,38 +5,67 @@
 #include <Wire.h>
 #include <Adafruit_ADS1015.h>
 
+
+//servo range is anything above 10 and less than 40
 //create instance of ADCs
 Adafruit_ADS1015 ads1015_1(0x48);
 Adafruit_ADS1015 ads1015_2(0x49);
 Adafruit_ADS1015 ads1015_3(0x4A);
 Adafruit_ADS1015 ads1015_4(0x4B);
-
+/*
+ *blue = pan   = pin 12
+ *yellow = tilt = pin 13
+ */
 int servoLaser = 22;
 int servoLaserLED = 23;
-int panPin = 13;
-int tiltPin = 12;
+int tiltPin = 13;
+int panPin = 12;
 int servoSensorAdc = 0;
 int16_t servoSensor;
+int servoSensorMin = 10;
+int servoSensorMax = 40;
 
+int toggleLEDVal = 0;
+int toggleServoLaserVal = 0;
+void toggleServoLED(){
+  if (toggleLEDVal == 0){
+    digitalWrite(servoLaserLED, HIGH);
+    toggleLEDVal = 1;
+  }
+  else {
+    digitalWrite(servoLaserLED, LOW);
+    toggleLEDVal = 0;
+  }
+}
+void toggleServoLaser(){
+  if (toggleServoLaserVal == 0){
+    digitalWrite(servoLaser, HIGH);
+    toggleServoLaserVal = 1;
+  }
+  else {
+    digitalWrite(servoLaser, LOW);
+    toggleServoLaserVal = 0;
+  }
+}
 Servo panServo;
 Servo tiltServo;
 
 //the location value must be between 0 and 180
 const int PANTILTSERVOLOCATIONS = 3;
-int panLocations[PANTILTSERVOLOCATIONS] = {0 , 90 , 45 };
-int tiltLocations[PANTILTSERVOLOCATIONS] = {45 , 90 , 0 };
+int panLocations[PANTILTSERVOLOCATIONS] = {13 , 30 , 35 };
+int tiltLocations[PANTILTSERVOLOCATIONS] = {30 , 45 , 25 };
 int panTiltIndex = 0;
 
 void startServoLaser(){
   digitalWrite(servoLaser, HIGH);
-  digitalWrite(servoLaser, HIGH);
+  digitalWrite(servoLaserLED, HIGH);
   panServo.write (panLocations[0] );
   tiltServo.write( tiltLocations[0] );
   delay(30);    //wait for servo to reach location
 }
 void stopServoLaser(){
   digitalWrite(servoLaser, LOW);
-  digitalWrite(servoLaser, LOW);
+  digitalWrite(servoLaserLED, LOW);
 }
 void changeServoLocation(){
   if (panTiltIndex >= 3){
@@ -98,7 +127,6 @@ byte* getBTCode(int strLength){
 //code command stuff
 int panTiltChangeLocationCommand = 0;
 int panTiltReset = 1;
-int magnetBase = 2;
 
 void setup() {
   // put your setup code here, to run once:
@@ -111,25 +139,43 @@ void setup() {
   ads1015_4.begin();
 
   setupServoLaser();
-
+  startServoLaser();    //testing
 }
-
+int codeLen = 3;
+int tempLaser = 0;
+int panIndex = 0;
 void loop() {
+  //code base
   /*
   servoSensor = ads1015_1.readADC_SingleEnded(0);
   Serial.print("adc value: ");
   Serial.println(servoSensor);
-  if( (servoSensor > 800) && (servoSensor < 1024) ){
-    Serial.println("     SENSOR IS ON !!  ");
+  toggleServoLED();
+  toggleServoLaser();
+  //delay(800);
+
+  if (panIndex == 3){
+    panIndex = 0;
+  }
+  panServo.write (panLocations[panIndex]);
+  tiltServo.write (tiltLocations[panIndex]);
+  panIndex++;
+  delay(2000);
+  */
+  
+  servoSensor = ads1015_1.readADC_SingleEnded(0);
+  //Serial.print("adc value: ");
+  //Serial.println(servoSensor);
+  if( (servoSensor > servoSensorMin) && (servoSensor < servoSensorMax) ){
+    stopServoLaser();
+    char message[codeLen] = {'5', '0', '1' };
+    sendBTCode(message,codeLen);
   }
   else{
-    Serial.println("     SENSOR IS   NOT    ON !!  ");
+    //Serial.println("     SENSOR IS   NOT    ON !!  ");
   }
-  delay(2000);
-  stopServoLaser();
-  //changeServoLocation();
-  //delay(2000);
-  */
+ // delay(2000);
+
   // put your main code here, to run repeatedly:
   if  (Serial1.available() ){
       BTCode = getBTCode(btCodeLength);
@@ -139,14 +185,7 @@ void loop() {
 
         if (techNum == 3){
           if(  codeNum  == panTiltChangeLocationCommand ){
-            panTiltIndex += 1;
-            if ( panTiltIndex == PANTILTSERVOLOCATIONS ){
-              panTiltIndex = 0;
-            }
-            //move pan tilt servo to next location, loop when out of new locations
-            panServo.write( panLocations[panTiltIndex]);
-            tiltServo.write (tiltLocations[panTiltIndex]);
-            delay(30);    //wait for servo to reach location
+            changeServoLocation();
           }
           else if (codeNum  == panTiltReset){
             panTiltIndex = 0;
@@ -160,6 +199,9 @@ void loop() {
         }
         else if (techNum == 4){
           //manage all laser commands
+          if (codeNum == 1){
+            startServoLaser();
+          }
         }
         else if (techNum == 5){
           //manage all sensor commands
@@ -169,5 +211,4 @@ void loop() {
           }
       }
   }
-  
 }
