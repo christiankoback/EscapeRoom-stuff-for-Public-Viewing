@@ -17,81 +17,141 @@ mainCubeArduino_queue = Queue()
 magnetArduino_queue = Queue()
 laserArduino_queue = Queue()
 raspPi_queue = Queue()
+timer_queue = Queue()
 
 hintCommand = "hint"
+restartCommand = "~restart"
+isDonePassword = 0
+isChestOpen = 0
+minutes = 25
+
+def isLetter(possibleLetter):
+	if possibleLetter > 64 and possibleLetter <91:
+		return 1
+	else:
+		if possibleLetter > 96 and possibleLetter < 123:
+			return 1
+	return 0
+def countdown():
+	t = minutes * 60
+	while t:
+		mins, secs = divmod(t, 60)
+		timeformat = '{:02d}:{:02d}'.format(mins, secs)
+		#print(timeformat, end='\r')
+		if timer_queue.empty():
+				pass
+		else:
+			garbage = timer_queue.get(False)
+		timer_queue.put( timeformat , True)
+		time.sleep(1)
+		t -= 1
+	
+	timer_queue.put(t, True)
 def hintFunction():
 	#light up LED strip - specific command
-	print("hello")
+	magnetArduino_queue.put("202"   , True)
+	time.sleep(10)
+	magnetArduino_queue.put("201"   , True)
 
 def nfcArduinoFunctions():
 	sock0 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock0.connect((bd_addr0,port))
-	while 1: 
-		#handle reading from arduino
-		data = sock0.recv(4)#garbage in the first char, ignore
-		data2 = data[1:] #useful data, add to queue for Pi		
-		if data2:
-			#send data to queue for raspPi
-			raspPi_queue.put(data2,false)	
+	sock0.setblocking(0)
+	while 1:
+		try:
+			#handle reading from arduino
+			data = sock0.recv(4)#garbage in the first char, ignore
+			if data:
+				data2 = data[1:] #useful data, add to queue for Pi	
+				#send data to queue for raspPi
+				#print("nfc arduino:")
+				#print(data2)
+				raspPi_queue.put(data2,True)
+		except bluetooth.btcommon.BluetoothError:
+			pass
 		#handle sending to arduino
 		if nfcArduino_queue.empty():
 			pass
 		else:
-			dataToSend = nfcArduino_queue.get(false)
+			dataToSend = nfc_queue.get(False)
 			if dataToSend :
 				sock0.send(dataToSend)
-			nfcArduino_queue.task_done()
+			nfc_queue.task_done()	
 def mainCubeArduinoFunctions():
 	sock1 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock1.connect((bd_addr1,port))
-	while 1: 
-		#handle reading from arduino
-		data = sock1.recv(4)#garbage in the first char, ignore
-		data2 = data[1:] #useful data, add to queue for Pi	
-		if data2:
-			raspPi_queue.put(data2,false)	
-		#handle sending to arduino
+	sock1.setblocking(0)
+	while 1:
+		try:
+			#handle reading from arduino
+			data = sock1.recv(4)#garbage in the first char, ignore
+			if data:
+				data2 = data[1:] #useful data, add to queue for Pi	
+				#send data to queue for raspPi
+				#print("mainCubeArduino_queue:")
+				#print(data2)
+				raspPi_queue.put(data2,True)
+	    	except bluetooth.btcommon.BluetoothError:
+                	pass
+	    	#handle sending to arduino
 		if mainCubeArduino_queue.empty():
 			pass
 		else:
-			dataToSend = mainCubeArduino_queue.get(false)
+			dataToSend = mainCubeArduino_queue.get(False)
 			if dataToSend :
 				sock1.send(dataToSend)
-			mainCubeArduino_queue.task_done()
+			mainCubeArduino_queue.task_done()	
+
 def magnetArduinoFunctions():
 	sock2 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock2.connect((bd_addr2,port))
-	while 1: 
-		#handle reading from arduino
-		data = sock2.recv(4)#garbage in the first char, ignore
-		data2 = data[1:] #useful data, add to queue for Pi	
-		if data2:
-			raspPi_queue.put(data2,false)	
-		#handle sending to arduino
+	sock2.setblocking(0)
+	while 1:
+		try:
+			#handle reading from arduino
+			data = sock2.recv(4)#garbage in the first char, ignore
+			if data:
+				data2 = data[1:] #useful data, add to queue for Pi	
+				#send data to queue for raspPi
+				#print("magnetArduino_queue:")
+				#print(data2)
+				raspPi_queue.put(data2,True)
+	    	except bluetooth.btcommon.BluetoothError:
+                	pass
+	    	#handle sending to arduino
 		if magnetArduino_queue.empty():
 			pass
 		else:
-			dataToSend = magnetArduino_queue.get(false)
-			magnetArduino_queue.task_done()
+			dataToSend = magnetArduino_queue.get(False)
 			if dataToSend :
 				sock2.send(dataToSend)
+			magnetArduino_queue.task_done()	
+
 def laserArduinoFunctions():
 	sock3 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 	sock3.connect((bd_addr3,port))
-	while 1: 
-		#handle reading from arduino
-		data = sock0.recv(4)#garbage in the first char, ignore
-		data2 = data[1:] #useful data, add to queue for Pi	
-		if data2:
-			raspPi_queue.put(data2,false)	
-		#handle sending to arduino
+	sock3.setblocking(0)
+	while 1:
+		try:
+			#handle reading from arduino
+			data = sock3.recv(4)#garbage in the first char, ignore
+			if data:
+				data2 = data[1:] #useful data, add to queue for Pi	
+				#send data to queue for raspPi
+				#print("magnetArduino_queue:")
+				#print(data2)
+				raspPi_queue.put(data2,True)
+	    	except bluetooth.btcommon.BluetoothError:
+                	pass
+	    	#handle sending to arduino
 		if laserArduino_queue.empty():
 			pass
 		else:
-			dataToSend = laserArduino_queue.get(false)
+			dataToSend = laserArduino_queue.get(False)
 			if dataToSend :
 				sock3.send(dataToSend)
-			laserArduino_queue.task_done()
+			laserArduino_queue.task_done()	
+
 def mainFunction():
 	if raspPi_queue.empty():
 		pass
@@ -100,14 +160,21 @@ def mainFunction():
 		if dataToProcess:
 			if data[0] == '1' : 
 				if data[1:] == '01':
-					#NFC card 1 was tapped
-					print (data[1:])
+					#NFC card 1 was tapped, start servo laser, blink orange wire
+					laserArduino_queue.put("300" , True)
+					mainCubeArduino_queue.put("228" , True)
 				if data[1:] == '02':
-					#NFC card 2 was tapped
-					print (data[1:])
+					#NFC card 2 was tapped, change lol shield pattern
+					mainCubeArduino_queue.put("242" , True)
 				if data[1:] == '03':
-					#NFC card 3 was tapped
+					#NFC card 3 was tapped, check state of puzzles, blink orange wire
 					print (data[1:])
+					mainCubeArduino_queue.put("228" , True)
+					if (isDonePassword == 1) :
+						if (isChestOpen == 1)  :
+							#do something, video or something
+							hint.clear()
+							hint.addstr("GAME OVER !!")
 			
 			if data[0] == '3':
 				if data[1:] == '11':
@@ -126,125 +193,201 @@ def mainFunction():
 					#cat5e_5 cable is plugged in and correct
 					print (data[1:])
 				if data[1:] == '16':
-					#chest on cube is open
-					print (data[1:])
+					#chest on cube is open, turn on blue wire 
+					isChestOpen = 1
+					mainCubeArduino_queue.put("224" , True)
 				if data[1:] == '18':
 					#keypad password is correct
-					print (data[1:])
+					mainCubeArduino_queue.put("223" , True)
 		raspPi_queue.task_done()
 
 def ncursesFunction(): 
-	userAnswer = "earth"
-	passAnswer = "goodbye" 
+	characterLengthMax = 45
+	countTemp = 0
+	userAnswer1 = "MYGEETONIA"
+	userAnswer2 = "mygeetonia"
+	passAnswer1 = "EARTH" 
+	passAnswer2 = "earth"
 	tempAnswer = ""
-	isDone = False;
+	isDone = False
 
 	state = "user"
 
 	try:
 		mainwindow = curses.initscr()
 		mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
-
+		print("height")
+		print(mainWindow_height)
+		print("width")
+		print(mainWindow_width)
 		# Some curses-friendly terminal settings
 		curses.cbreak()
 		curses.noecho()
 		mainwindow.refresh()
-
-		#container for textbox
-		begin_x = 0
-		begin_y = 0
-		height = mainWindow_height
-		width = mainWindow_width
+		
+		#timer
+		begin_x = 68
+		begin_y = 7
+		height = 3
+		width = 6
+		timer = curses.newwin(height, width, begin_y, begin_x)
+		timer.box()
+		timer.refresh()
+		
+		#user input
+		begin_x = 36
+		begin_y = 16
+		height = 15
+		width = 74
 		window1 = curses.newwin(height, width, begin_y, begin_x)
 		window1.box()
 		window1.refresh()
-
-		begin_x = (int) (mainWindow_width/3 ) + 1
-		begin_y = (int) (mainWindow_height/3 ) + 2
-		height = 7
-		width = (int) (mainWindow_width/3) - 2
+		
+		begin_x = 60
+		begin_y = 23
+		height = 5
+		width = 48
 		window2 = curses.newwin(height, width, begin_y, begin_x)
+		window2.nodelay(1)
 		window2.keypad(1)
 		window2.refresh()
-
-		#border
-		begin_x = (int) (mainWindow_width/2) - 12
-		begin_y = (int) (mainWindow_height/2) - 9
-		height = 3
-		width = 23
+		
+		# text border
+		begin_x = 57
+		begin_y = 14
+		height = 5
+		width = 32
 		border = curses.newwin(height, width, begin_y, begin_x)
 		border.box()
 		border.refresh()
-
+		
+		
+		userItem = "     NAME OF 4TH DIMENSION"
+		passItem = "            ORIGIN"
+		hintItem = "              TYPE -HINT- ANYTIME FOR PUZZLE CLUE"
 		#textbox
-		begin_x = (int) (mainWindow_width/2) -11
-		begin_y = (int) (mainWindow_height/2) - 8
+		begin_x = 58
+		begin_y = 16
 		height = 1
-		width = 21
+		width = 30
 		textbox1 = curses.newwin(height, width, begin_y, begin_x)
-		textbox1.addstr( "     USERNAME")
-		answer = userAnswer
-		textbox1.refresh()
-
-		#hint box
-		begin_x = (int) (mainWindow_width/4)
-		begin_y = (int) ( (mainWindow_height/2) +(mainWindow_height/4) )
-		height = 6
-		width = (int) (mainWindow_width/2)
-		textbox1 = curses.newwin(height, width, begin_y, begin_x)
-		textbox1.addstr( "     USERNAME")
-		answer = userAnswer
+		textbox1.addstr( userItem)
 		textbox1.refresh()
 		
+		#hint box
+		begin_x = 35
+		begin_y = 35
+		height = 10
+		width = 74
+		hint = curses.newwin(height, width, begin_y, begin_x)
+		hint.addstr( hintItem)
+		hint.refresh()
+		
+		#count = 0
+		#while(1):
+		#	if count == 0:
+		#		count = 1
+		
+		
 		while (isDone == False):	
-			c = window2.getkey()
-			if c == "q" :
-				break	#exit while loop 
-			window2.addch( c )
-			if c == '\x08' :
-				window2.delch( )
-				tempAnswer = tempAnswer[: len(tempAnswer)-1]
-			if ( c == "\n"):
-				#enter was pressed
-				if (tempAnswer == answer):
-					#change to password section
-					if (state == "user"):
-						state = "pass"
-						answer = passAnswer
+			if timer_queue.empty():
+				pass
+			else:
+				tempTime = timer_queue.get(True)
+				if (tempTime ):
+					timer.clear()
+					timer.addstr(tempTime )
+					timer.refresh()
+					window2.refresh()
+				
+			data = window2.getch()
+			if (data > 0) :
+				if data == 10:
+					if tempAnswer == userAnswer1 or tempAnswer == userAnswer2:
+						#change to password section
 						window2.clear()
 						textbox1.clear()
-						textbox1.addstr( "     PASSWORD")
+						textbox1.addstr(passItem)
 						tempAnswer = ""
 						textbox1.refresh()
 						window2.refresh()
+					if tempAnswer == passAnswer1 or tempAnswer == passAnswer2:
+						isDonePassword = 1
+						tempAnswer = ""
+						while(True):
+							data = window2.getch()
+							if data > 0:
+								c = chr(data)
+								if data == 10:
+									if (tempAnswer == restartCommand):
+										#restart everything
+										isDonePassword = 0
+										isChestOpen = 0
+										tempAnswer = ""
+										textbox1.clear()
+										textbox1.addstr( userItem)
+										textbox1.refresh()
+										timer_thread.start()
+										nfc_queue.put("320", True)
+										magnet_queue.put("301", True)
+										window2.clear()
+									else:
+										tempAnswer = ""
+										window2.clear()
+								else:
+									if isLetter(data):
+										if (tempAnswer == "" and c != "\n" ):
+											tempAnswer = c
+										else:
+											tempAnswer += c
+										tempCount = tempCount + 1
+										window2.addch( c )
 					else:
-						if (state == "pass"):
-							break
-							#isDone = True
-							#while(isDone):
-							#	print ("Done puzzle")		#puzzle is done
+						if (tempAnswer == hintCommand):
+							#do hint
+							hint.clear()
+							hint.addstr("I shall give you pity points. Here's a Clue.")
+							time.sleep(2)
+							hintFunction()
+							hint.refresh()
+						if (tempAnswer == restartCommand):
+							#restart everything
+							isDonePassword = 0
+							isChestOpen = 0
+							state = "user"
+							tempAnswer = ""
+							textbox1.addstr(userItem)
+							timer_thread.start()
+							nfc_queue.put("320", True)
+							magnet_queue.put("301", True)
+								
+						tempAnswer = ""
+						curses.beep()
+						window2.clear()
+						
 				else:
-					if (tempAnswer == hintCommand):
-						#do hint
-						print("this is hint command")
-					tempAnswer = ""
-					curses.beep()
-					window2.clear()
-					
-			else:		
-				if (tempAnswer == "" and c != "\n" ):
-					tempAnswer = c
-				else:
-					tempAnswer += c
-			window2.refresh()
+					if data == 263 :
+						tempString = tempAnswer[: len(tempAnswer)-1]
+						window2.clear( )
+						window2.addstr(tempString)
+						tempAnswer = tempString
+					else:
+						c = chr(data)
+						if isLetter(data):
+							if (tempAnswer == "" and c != "\n" ):
+								tempAnswer = c
+							else:
+								tempAnswer += c
+							window2.addch( c )
+				window2.refresh()
 	except:
 		curses.nocbreak()
-		window2.keypad(False)
+		#window2.keypad(False)
 		curses.echo()
 		curses.endwin()
 
 	curses.nocbreak()
-	window2.keypad(False)
+	#window2.keypad(False)
 	curses.echo()
 	curses.endwin()
 
@@ -254,23 +397,24 @@ mainCubeArduino_thread = Thread(target=mainCubeArduinoFunctions)
 magnetArduino_thread = Thread(target=magnetArduinoFunctions)
 laserArduino_thread = Thread(target=laserArduinoFunctions)
 mainLogic_thread = Thread(target=mainFunction)
-ncurses_thread = Thread(target=ncursesFunction)
+#ncurses_thread = Thread(target=ncursesFunction)
+timer_thread = Thread(target=countdown)
 
 nfcArduino_thread.setDaemon(True)
 mainCubeArduino_thread.setDaemon(True)
 magnetArduino_thread.setDaemon(True)
 laserArduino_thread.setDaemon(True)
 mainLogic_thread.setDaemon(True)
-ncurses_thread.setDaemon(True)
+#ncurses_thread.setDaemon(True)
+timer_thread.setDaemon(True)
 
 nfcArduino_thread.start()
 mainCubeArduino_thread.start()
 magnetArduino_thread.start()
 laserArduino_thread.start()
 mainLogic_thread.start()
-ncurses_thread.start()
+#ncurses_thread.start()
+timer_thread.start()
 
-print("hello stranger. welcome to an infinite loop")
-while(1):
-	print("in infinite loop")
-	time.sleep(200)
+
+ncursesFunction()
