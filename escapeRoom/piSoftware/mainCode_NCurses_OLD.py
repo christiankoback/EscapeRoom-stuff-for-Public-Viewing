@@ -19,20 +19,12 @@ laserArduino_queue = Queue()
 raspPi_queue = Queue()
 timer_queue = Queue()
 hint_queue = Queue()
-adminHint_queue = Queue()
 
 hintCommand = "hint"
-quitCommand = "olesQuit"
-startCommand = "olesStart"
+restartCommand = "~restart"
 isDonePassword = 0
 isChestOpen = 0
-minutes = 20
-
-
-
-
-
-
+minutes = 25
 
 def isLetter(possibleLetter):
 	if possibleLetter > 64 and possibleLetter <91:
@@ -41,183 +33,6 @@ def isLetter(possibleLetter):
 		if possibleLetter > 96 and possibleLetter < 123:
 			return 1
 	return 0
-
-	
-#retrun from ncurses -> 1 = success escaperoom, 2 = timer ran out
-def mainEscapeRoomFunction():
-	tempAdminCode = ""	
-	escapeRoomResult = -1
-	count = 0
-	
-	arduinoConnect()
-	
-	try:
-		mainwindow = curses.initscr()
-		mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
-		curses.raw()
-		# Some curses-friendly terminal settings
-		curses.cbreak()
-		curses.noecho()
-		mainwindow.refresh()
-		while(1):
-			if count == 0:
-				count = 1
-				#user input
-				begin_x = 36
-				begin_y = 16
-				height = 15
-				width = 74
-				adminBodyBorder = curses.newwin(height, width, begin_y, begin_x)
-				adminBodyBorder.box()
-				adminBodyBorder.refresh()
-				
-				begin_x = 60
-				begin_y = 23
-				height = 5
-				width = 48
-				adminBody = curses.newwin(height, width, begin_y, begin_x)
-				adminBody.nodelay(1)
-				adminBody.keypad(1)
-				adminBody.refresh()
-				
-				# text border
-				begin_x = 57
-				begin_y = 14
-				height = 5
-				width = 32
-				adminTitleBorder = curses.newwin(height, width, begin_y, begin_x)
-				adminTitleBorder.box()
-				adminTitleBorder.refresh()
-				
-				
-				userItem = "     ADMIN"
-				#textbox
-				begin_x = 58
-				begin_y = 16
-				height = 1
-				width = 30
-				adminTitle = curses.newwin(height, width, begin_y, begin_x)
-				adminTitle.addstr( userItem)
-				adminTitle.refresh()
-				
-				#hint box
-				begin_x = 45
-				begin_y = 35
-				height = 10
-				width = 74
-				adminHint = curses.newwin(height, width, begin_y, begin_x)
-				
-				
-				#nfcArduino_thread = Thread(target=nfcArduinoFunctions, args=(stuff1,stuff2))				
-				nfcArduino_thread = Thread(target=nfcArduinoFunctions)
-				mainCubeArduino_thread = Thread(target=mainCubeArduinoFunctions)
-				magnetArduino_thread = Thread(target=magnetArduinoFunctions)
-				laserArduino_thread = Thread(target=laserArduinoFunctions)
-				mainLogic_thread = Thread(target=mainFunction)
-				timer_thread = Thread(target=countdown)
-
-				nfcArduino_thread.setDaemon(True)
-				mainCubeArduino_thread.setDaemon(True)
-				magnetArduino_thread.setDaemon(True)
-				laserArduino_thread.setDaemon(True)
-				mainLogic_thread.setDaemon(True)
-				timer_thread.setDaemon(True)
-
-			else:
-				pass
-				
-			if adminHint_queue.empty():
-				pass
-			else:
-				adminHint.clear()
-				adminHint.addstr(adminHint_queue.get(False) )
-				adminHint.refresh()
-			
-			data = adminBody.getch()
-			if (data > 0) :
-				if data == 263 :
-					tempString = tempAdminCode[: len(tempAdminCode)-1]
-					adminBody.clear( )
-					tempAdminCode = tempString
-					adminBody.addstr(tempAdminCode)
-					adminBody.refresh()
-				else:
-					if data == 10:
-						if tempAdminCode == startCommand:
-							adminHint.clear()
-							adminHint.refresh()
-							#adminBody.keypad(False)
-						
-							nfcArduino_thread.start()
-							mainCubeArduino_thread.start()
-							magnetArduino_thread.start()
-							laserArduino_thread.start()
-							mainLogic_thread.start()
-							timer_thread.start()
-							
-							escapeRoomResult = ncursesFunction()
-							
-							#adminBody.keypad(True)
-							#nfcArduino_thread.terminate()
-							#mainCubeArduino_thread.terminate()
-							#magnetArduino_thread.terminate()
-							#laserArduino_thread.terminate()
-							#mainLogic_thread.terminate()
-							#timer_thread.terminate()
-							
-							adminBodyBorder.refresh()
-							adminBody.refresh()
-							adminHint.refresh()
-							adminTitleBorder.refresh()
-							adminTitle.refresh()
-							count = 0
-						else:
-							adminBody.clear( )
-							tempAdminCode = "" 
-							adminBody.refresh()
-					else:
-						try:
-							if isLetter(data):
-								c = chr(data)
-								if (tempAdminCode == "" ):
-									tempAdminCode = c
-								else:
-									tempAdminCode += c
-								adminBody.addch( c )
-								adminBody.refresh()
-							else:
-								pass
-						except:
-							pass
-
-				if escapeRoomResult == 1:
-					#success, success video
-					pass
-				if escapeRoomResult == 2:
-					#fail, timer countdown- video on
-					pass
-				if escapeRoomResult == 3:
-					#go to main screen
-					pass
-	except:
-		curses.nocbreak()
-		adminBody.keypad(False)
-		curses.echo()
-		curses.endwin()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def countdown():
 	t = minutes * 60
 	while t:
@@ -239,38 +54,14 @@ def hintFunction():
 	time.sleep(10)
 	magnetArduino_queue.put("201"   , True)
 
-	
-def arduinoConnect():
+def nfcArduinoFunctions():
 	try:
 		sock0 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 		sock0.connect((bd_addr0,port))
 		sock0.setblocking(0)
-		adminHint_queue.put("bluetooth success, NFC",True)
+		hint_queue.put("bluetooth success, NFC",True)
 	except:
-		adminHint_queue.put("bluetooth error, NFC",True)
-	
-	try:
-		sock1 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock1.connect((bd_addr1,port))
-		sock1.setblocking(0)
-	except:
-		adminHint_queue.put("bluetooth error, main Cube",True)
-	
-	try:
-		sock2 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock2.connect((bd_addr2,port))
-		sock2.setblocking(0)
-	except:
-		adminHint_queue.put("bluetooth error, magnet",True)
-		
-	try:
-		sock3 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock3.connect((bd_addr3,port))
-		sock3.setblocking(0)
-	except:
-		adminHint_queue.put("bluetooth error, laser",True)
-		
-def nfcArduinoFunctions():
+		hint_queue.put("bluetooth error, NFC",True)
 	while 1:
 		data2='999999'
 		message = " "
@@ -282,13 +73,13 @@ def nfcArduinoFunctions():
 					data2 = data[1:] #useful data, add to queue for Pi
 				if len(data) == 3:
 					data2 = data
-				message = "NFC test, data: " + data2
+				message = "data: " + data2
 				#send data to queue for raspPi
 				#print("nfc arduino:")
 				#print(data2)
 				if data2 != '999999':
 					message = message + "data is valid"
-					adminHint_queue.put(message,True)
+					hint_queue.put(message,True)
 					raspPi_queue.put(data2,True)
 		except bluetooth.btcommon.BluetoothError:
 			pass
@@ -296,6 +87,8 @@ def nfcArduinoFunctions():
 		if nfcArduino_queue.empty():
 			pass
 		else:
+			message = "NFC queue NOT empty"
+			hint_queue.put(message,True)
 			dataToSend = nfc_queue.get(True)
 			if dataToSend :
 				sock0.send(dataToSend)
@@ -303,6 +96,12 @@ def nfcArduinoFunctions():
 		
 		time.sleep(5.0/100.0)
 def mainCubeArduinoFunctions():
+	try:
+		sock1 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
+		sock1.connect((bd_addr1,port))
+		sock1.setblocking(0)
+	except:
+		hint_queue.put("bluetooth error, main Cube",True)
 	while 1:
 		try:
 			#handle reading from arduino
@@ -332,6 +131,12 @@ def mainCubeArduinoFunctions():
 			mainCubeArduino_queue.task_done()	
 		time.sleep(7.0/100.0)
 def magnetArduinoFunctions():
+	try:
+		sock2 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
+		sock2.connect((bd_addr2,port))
+		sock2.setblocking(0)
+	except:
+		hint_queue.put("bluetooth error, magnet",True)
 	while 1:
 		try:
 			#handle reading from arduino
@@ -341,6 +146,7 @@ def magnetArduinoFunctions():
 					data2 = data[1:] #useful data, add to queue for Pi
 				if len(data) == 3:
 					data2 = data
+				message = "data: " + data2
 				#send data to queue for raspPi
 				#print("nfc arduino:")
 				#print(data2)
@@ -361,6 +167,12 @@ def magnetArduinoFunctions():
 			magnetArduino_queue.task_done()	
 		time.sleep(11.0/100.0)
 def laserArduinoFunctions():
+	try:
+		sock3 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
+		sock3.connect((bd_addr3,port))
+		sock3.setblocking(0)
+	except:
+		hint_queue.put("bluetooth error, laser",True)
 	while 1:
 		try:
 			#handle reading from arduino
@@ -370,7 +182,7 @@ def laserArduinoFunctions():
 					data2 = data[1:] #useful data, add to queue for Pi
 				if len(data) == 3:
 					data2 = data
-		
+				message = "data: " + data2
 				#send data to queue for raspPi
 				#print("nfc arduino:")
 				#print(data2)
@@ -405,14 +217,14 @@ def mainFunction():
 			hint_queue.put(message,True)
 			if data[0] == '1' : 
 				if data[1:] == '01':
-					#NFC card 1 was tapped, start servo laser, blink orange wire, red bus pass
+					#NFC card 1 was tapped, start servo laser, blink orange wire
 					laserArduino_queue.put("300" , True)
 					mainCubeArduino_queue.put("228" , True)
 				if data[1:] == '02':
-					#NFC card 2 was tapped, change lol shield pattern, cloth bus pass 
+					#NFC card 2 was tapped, change lol shield pattern
 					mainCubeArduino_queue.put("242" , True)
 				if data[1:] == '03':
-					#NFC card 3 was tapped, check state of puzzles, blink orange wire, blue bus pass 
+					#NFC card 3 was tapped, check state of puzzles, blink orange wire
 					print (data[1:])
 					mainCubeArduino_queue.put("228" , True)
 					if (isDonePassword == 1) :
@@ -459,12 +271,12 @@ def ncursesFunction():
 	state = "user"
 
 	try:
-		#mainwindow = curses.initscr()
-		#mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
+		mainwindow = curses.initscr()
+		mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
 		# Some curses-friendly terminal settings
-		#curses.cbreak()
-		#curses.noecho()
-		#mainwindow.refresh()
+		curses.cbreak()
+		curses.noecho()
+		mainwindow.refresh()
 		
 		#timer
 		begin_x = 68
@@ -516,14 +328,14 @@ def ncursesFunction():
 		textbox1.refresh()
 		
 		#hint box
-		begin_x = 45
+		begin_x = 35
 		begin_y = 35
 		height = 10
 		width = 74
 		hint = curses.newwin(height, width, begin_y, begin_x)
 		#hint.addstr( hintItem)
 		hint.refresh()
-	
+		
 		#count = 0
 		#while(1):
 		#	if count == 0:
@@ -542,14 +354,12 @@ def ncursesFunction():
 				pass
 			else:
 				tempTime = timer_queue.get(True)
-				if tempTime != "00:01":
+				if tempTime:
 					if (isDonePassword == 0)  :
 						timer.clear()
 						timer.addstr(tempTime )
 						timer.refresh()
 						window2.refresh()
-				else:
-					isDonePassword = 2
 				
 			data = window2.getch()
 			if (data > 0) :
@@ -565,6 +375,34 @@ def ncursesFunction():
 					if tempAnswer == passAnswer1 or tempAnswer == passAnswer2:
 						isDonePassword = 1
 						tempAnswer = ""
+						while(True):
+							data = window2.getch()
+							if data > 0:
+								c = chr(data)
+								if data == 10:
+									if (tempAnswer == restartCommand):
+										#restart everything
+										isDonePassword = 0
+										isChestOpen = 0
+										tempAnswer = ""
+										textbox1.clear()
+										textbox1.addstr( userItem)
+										textbox1.refresh()
+										timer_thread.start()
+										nfc_queue.put("320", True)
+										magnet_queue.put("301", True)
+										window2.clear()
+									else:
+										tempAnswer = ""
+										window2.clear()
+								else:
+									if isLetter(data):
+										if (tempAnswer == "" and c != "\n" ):
+											tempAnswer = c
+										else:
+											tempAnswer += c
+										tempCount = tempCount + 1
+										window2.addch( c )
 					else:
 						if (tempAnswer == hintCommand):
 							#do hint
@@ -572,8 +410,17 @@ def ncursesFunction():
 							#hint.addstr("I shall give you pity points. Here's a Clue.")
 							#hintFunction()
 							hint.refresh()
-						if (tempAnswer == quitCommand):
-							isDonePassword = 3
+						if (tempAnswer == restartCommand):
+							#restart everything
+							isDonePassword = 0
+							isChestOpen = 0
+							state = "user"
+							tempAnswer = ""
+							textbox1.addstr(userItem)
+							timer_thread.start()
+							nfc_queue.put("320", True)
+							magnet_queue.put("301", True)
+								
 						tempAnswer = ""
 						curses.beep()
 						window2.clear()
@@ -595,7 +442,7 @@ def ncursesFunction():
 				window2.refresh()
 	except:
 		curses.nocbreak()
-		window2.keypad(False)
+		#window2.keypad(False)
 		curses.echo()
 		curses.endwin()
 
@@ -603,15 +450,31 @@ def ncursesFunction():
 	#window2.keypad(False)
 	curses.echo()
 	curses.endwin()
-	
-	hint.clear()
-	hint.refresh()
-	timer.clear()
-	timer.refresh()
 
-	window2.keypad(False)
-	return isDonePassword
+#nfcArduino_thread = Thread(target=nfcArduinoFunctions, args=(stuff1,stuff2))				
+nfcArduino_thread = Thread(target=nfcArduinoFunctions)
+mainCubeArduino_thread = Thread(target=mainCubeArduinoFunctions)
+magnetArduino_thread = Thread(target=magnetArduinoFunctions)
+laserArduino_thread = Thread(target=laserArduinoFunctions)
+mainLogic_thread = Thread(target=mainFunction)
+#ncurses_thread = Thread(target=ncursesFunction)
+timer_thread = Thread(target=countdown)
 
-#ncursesFunction()
-while(1):
-	mainEscapeRoomFunction()
+nfcArduino_thread.setDaemon(True)
+mainCubeArduino_thread.setDaemon(True)
+magnetArduino_thread.setDaemon(True)
+laserArduino_thread.setDaemon(True)
+mainLogic_thread.setDaemon(True)
+#ncurses_thread.setDaemon(True)
+timer_thread.setDaemon(True)
+
+nfcArduino_thread.start()
+mainCubeArduino_thread.start()
+magnetArduino_thread.start()
+laserArduino_thread.start()
+mainLogic_thread.start()
+#ncurses_thread.start()
+timer_thread.start()
+
+
+ncursesFunction()

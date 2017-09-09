@@ -14,6 +14,7 @@ void sendBTCode(char * strWord,int strLength){
   for (int i = 0; i < strLength; i++){
     Serial1.write( strWord[i] );
   }
+  delay(30);  
 }
 
 byte* getBTCode(int strLength){
@@ -75,14 +76,6 @@ void manageCards::doCard2 ( )
   char message[codeLength] = {cardTech, '0','3'};
   sendBTCode(message,codeLength);
 }
-void manageCards::doCard3 ( )
-{
-  //digitalWrite(pinLed, HIGH);
-  //digitalWrite(pinLed2, HIGH);
-  //Serial.println("Mifare Classic 2 card was tapped");
-  char message[codeLength] = {cardTech, '0','4'};
-  sendBTCode(message,codeLength);
-}
 void manageCards::resetCards(){
   //digitalWrite(pinLed, LOW);
   //digitalWrite(pinLed2, LOW);
@@ -99,12 +92,11 @@ void manageCards::cardSetup(){
   #endif
 }
  // array of function pointers
-const manageCards::GeneralFunction manageCards::doCardAction[4] =
+const manageCards::GeneralFunction manageCards::doCardAction[3] =
   {
     &manageCards::doCard0, 
     &manageCards::doCard1, 
-    &manageCards::doCard2, 
-    &manageCards::doCard3
+    &manageCards::doCard2
   };
 
 
@@ -122,7 +114,7 @@ uint8_t uidLength;                        // Length of the UID (4 or 7 bytes dep
 
 //works if no cards have the same sum
 //card sums
-// 236 +215 +172 + 27  -> red bus pass = 650
+// 236 +215 +172 + 27  -> red bus pass = 650 
 //4  + 171 + 28 + 210 + 156 + 64 + 128 -> cloth bus pass = 761
 // 236  + 35  +  0 +  5   -> blue bus pass = 276
 
@@ -402,6 +394,8 @@ uint8_t white(uint32_t c){
 const int BRIGHTNESS = 40;
 
 void setup() {
+  Serial.begin(9600);   //testing
+  
   nfc.begin();
   nfc.SAMConfig();
   nfc.setPassiveActivationRetries(0x1F);  // make the nfc more like a non-blocking function - try finding card 32 times
@@ -417,7 +411,7 @@ void setup() {
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  for(int i = 0 ; i < 12 ; i++){
+  for(int i = 0 ; i < 12 ; i++){      //set complete ring to green color
     strip.setPixelColor(i, strip.Color(0,255, 0,0 ) );
   }
   strip.show();
@@ -493,8 +487,15 @@ void loop() {
         }
       }
     }
-  uint16_t cardUID = retrieveUID();
-  if ( cardUID != 0 ){
+  /*uint16_t cardUID = retrieveUID();
+  if (cardUID == 650){
+    Serial.print(cardUID);
+    sendBTCode("101",3);
+  }
+  */
+  
+    if ( cardUID != 0 ){
+    Serial.print(cardUID);
     //go through all stored nfc cards and check if a valid card is tapped
     for (int i = 0; i < cardNum ; i++){
       if (cardUID == validCards[i]){
@@ -504,10 +505,12 @@ void loop() {
       }
     }
   }
+  
   if( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ){
     chestButtonPrevValue = 1;
     sendBTCode(chestButtonCode, 3);
   }
+  delay(50);
   /*if (isHeadlightBreathing == 1){
     headlightBreathing();
   }*/
