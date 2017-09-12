@@ -1,6 +1,6 @@
 from omxplayer import OMXPlayer
 from time import sleep
-
+#test git from rpi
 #omxplayer --win "50 50 1390 1030" file.mp4 # how to run things from the terminal
 
 file_path_or_url = 'file.mp4'
