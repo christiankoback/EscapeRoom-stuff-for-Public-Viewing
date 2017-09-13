@@ -1,6 +1,6 @@
 import bluetooth
  
-#bd_addr = "98:D3:31:FC:59:F0" arduino 1
+#bd_addr = "98:D3:31:FC:59:F0" #arduino 1
 bd_addr = "98:D3:31:FC:5A:09" #replace this with different arduino 
 
 port = 1
