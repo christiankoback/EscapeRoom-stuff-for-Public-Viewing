@@ -7,7 +7,7 @@ bd_addr = "98:D3:31:FC:6C:97" #main cube arduino
 port = 1
 sock = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 sock.connect((bd_addr,port))
- 
+print "starting"
 while 1:
     data = sock.recv(20)#how many chars at a time
     print data
@@ -15,7 +15,7 @@ while 1:
     
     tosend = raw_input()
    # tosend += "oles\r"
-    
+    #sock.send("hello")
     if tosend != 'q':
         sock.send(tosend)
     else:
