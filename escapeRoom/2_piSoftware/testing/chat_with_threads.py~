@@ -8,9 +8,8 @@ sock.connect((bd_addr,1))
 def bluetooth(num, q, stop_event):
 	while not stop_event.wait(1):   	
 		print 'bluetooth receiving (2 sec wait)\n'		
-		data = sock.recv(1000)  #how many chars at a time
+		#data = sock.recv(10)  #how many chars at a time
 		#q.put(data)
-		sock.
 		time.sleep(2)
 	print 'bluetooth stopping'
 # END OF BLUETOOTH #########################################

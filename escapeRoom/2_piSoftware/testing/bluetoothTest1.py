@@ -5,9 +5,8 @@ import time
 #bd_addr = "00:06:66:08:5F:A8" #Firefly
 bd_addr = "98:D3:31:FC:6C:97" #main cube arduino
 
-port = 1
 sock = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-sock.connect((bd_addr,port))
+sock.connect((bd_addr,1))
 print "starting"
 
 while 1:
