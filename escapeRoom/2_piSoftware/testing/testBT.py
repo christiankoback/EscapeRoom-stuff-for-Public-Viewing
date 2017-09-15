@@ -11,10 +11,10 @@ sock.connect((bd_addr,port))
 while 1:
     data = sock.recv(20)#how many chars at a time
     print data
-    sock.send(data)
+    #sock.send(data)
     
     tosend = raw_input()
-    tosend += "oles\r"
+   # tosend += "oles\r"
     
     if tosend != 'q':
         sock.send(tosend)
