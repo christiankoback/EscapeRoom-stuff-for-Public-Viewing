@@ -22,9 +22,10 @@ toCube2 = Queue.Queue()
 
 def bluetoothFunction(incoming, toLaser, toMagnet, toCube1, toCube2, stop_event):
 	while not stop_event.wait(1):   	
-		print 'bluetooth receiving (2 sec wait)'		
+		#print 'bluetooth receiving (2 sec wait)'		
 		data = MainCubeBTSocket.recv(4)  #how many chars at a time
-		incoming.put(data)
+		print '>' +data.strip() + '<in the queue'
+		incoming.put(data.strip())
 		
 		# if something in the queue send it
 		while not toCube1.empty():
@@ -42,11 +43,11 @@ def bluetoothFunction(incoming, toLaser, toMagnet, toCube1, toCube2, stop_event)
 
 def logicFunction(incoming, toLaser, toMagnet, toCube1, toCube2, stop_event):
 	while not stop_event.wait(1):   
-		print 'logic 2 sec'
+		#print 'logic 2 sec'
 		if not incoming.empty():
 			print "Received>" + incoming.get() + "<"
-		time.sleep(2)
-	print 'logic stopping'
+		#time.sleep(2)
+	#print 'logic stopping'
 
 #END OF LOGIC ############################################################
 
