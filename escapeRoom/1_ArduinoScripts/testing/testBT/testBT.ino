@@ -5,22 +5,41 @@ void getBT(){
 void setup() {
   // put your setup code here, to run once:
 
-Serial.begin(9600); //testing
-Serial1.begin(9600);  //bluetooth - tx1,rx1
-Serial1.print ("START_ARDUINO>");
-Serial.print ("START_ARDUINO>");
-Serial.println(Serial1.read());
+Serial.begin(9600);   //Debug window
+Serial1.begin(9600);  //Bluetooth - tx1,rx1
+Serial.print("START_ARDUINO>");
+
 }
 String inData;
 String str;
+String text;
+int i = 0;
+
 void loop() {
   
  if(Serial1.available() > 0) {
      str = Serial1.readStringUntil('\n');
      Serial.println(">" + str + "<");
-     Serial1.println(str+"PI");
+     if (str == "11"){
+      Serial.println("ELEVEN");
+      Serial1.println("ELEVEN");
+     } else if (str == "!"){
+      Serial.println("REQUEST");
+      Serial1.println("REQUEST");
+     } else {
+      Serial1.println("!");
+     }
  }
- 
+
+//delay(5000);
+
+
+
+
+
+
+
+
 /*
   while (Serial1.available() > 0)
       {
