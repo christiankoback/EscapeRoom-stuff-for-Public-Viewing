@@ -21,13 +21,13 @@ void loop() {
      str = Serial1.readStringUntil('\n');
      Serial.println(">" + str + "<");
      if (str == "11"){
-      Serial.println("ELEVEN");
-      Serial1.println("ELEVEN");
+      Serial.println("ELEVEN from magnet");
+      Serial1.println("ELEVEN from magnet");
      } else if (str == "!"){
-      Serial.println("REQUEST");
-      Serial1.println("REQUEST");
+      Serial.println("REQUEST from nagbnet");
+      Serial1.println("REQUEST from magnet");
      } else {
-      Serial1.println("!");
+      Serial1.println("!from magnet");
      }
  }
 
