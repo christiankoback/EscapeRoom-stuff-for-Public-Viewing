@@ -4,26 +4,40 @@
   (Folder "Design Resources"
     (Folder "Library"
       (File ".\arduinolibrary.olb"
+        (DisplayName ".\arduinolibrary.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\capsym.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\capsym.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\connector.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\connector.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\electromechanical.olb"
+        (DisplayName
+           "c:\cadence\spb_17.2\tools\capture\library\electromechanical.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\gate.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\gate.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\mechanical.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\mechanical.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\microcontroller.olb"
+        (DisplayName
+           "c:\cadence\spb_17.2\tools\capture\library\microcontroller.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\regulator.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\regulator.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\transistor.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\transistor.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\discrete.olb"
+        (DisplayName "c:\cadence\spb_17.2\tools\capture\library\discrete.olb")
         (Type "Schematic Library"))
       (File "c:\cadence\spb_17.2\tools\capture\library\pspice\source.olb"
+        (DisplayName
+           "c:\cadence\spb_17.2\tools\capture\library\pspice\source.olb")
         (Type "Schematic Library")))
     (NoModify)
     (File ".\escaperoom1season1.dsn"
@@ -33,12 +47,9 @@
   (Folder "Outputs")
   (Folder "PSpice Resources"
     (Folder "Simulation Profiles")
-    (Folder "Model Libraries"
-      (Sort User))
-    (Folder "Stimulus Files"
-      (Sort User))
-    (Folder "Include Files"
-      (Sort User)))
+    (Folder "Model Libraries")
+    (Folder "Stimulus Files")
+    (Folder "Include Files"))
   (DefaultLibraryBrowseDirectory "library\PSpice")
   (PartMRUSelector
     (ADS_1015
@@ -91,7 +102,7 @@
       (FullPartName "R.Normal")
       (LibraryName "C:\CADENCE\SPB_17.2\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
       (DeviceIndex "0"))
-    ("OPTO ISOLATOR"
+    (OPTO ISOLATOR
       (FullPartName "OPTO ISOLATOR.Normal")
       (LibraryName "C:\CADENCE\SPB_17.2\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
       (DeviceIndex "0"))
@@ -108,54 +119,17 @@
     (FileView
       (Path "Design Resources")
       (Path "Design Resources"
-         "c:\users\chris\documents\projects\escaperoom\schematics\escaperoom1season1.dsn")
+         "c:\users\chris\documents\projects\escaperoom\3_schematics\escaperoom1season1.dsn")
       (Path "Design Resources"
-         "c:\users\chris\documents\projects\escaperoom\schematics\escaperoom1season1.dsn"
+         "c:\users\chris\documents\projects\escaperoom\3_schematics\escaperoom1season1.dsn"
          "SCHEMATIC1")
-      (Path "Design Resources"
-         "c:\users\chris\documents\projects\escaperoom\schematics\escaperoom1season1.dsn"
-         "Design Cache")
       (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library"
-         "c:\users\chris\documents\projects\escaperoom\schematics\arduinolibrary.olb")
-      (Select "Design Resources" "Library"
-         "c:\users\chris\documents\projects\escaperoom\schematics\arduinolibrary.olb"))
+      (Select "Design Resources"
+         "c:\users\chris\documents\projects\escaperoom\3_schematics\escaperoom1season1.dsn"
+         "SCHEMATIC1" "ARDUINO:PART1"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -31 0 200 0 420"))
-      (Tab 0))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -31 52 1655 52 511")
-        (Scroll "-355 0")
-        (Zoom "87")
-        (Occurrence "/"))
-      (Path
-         "C:\USERS\CHRIS\DOCUMENTS\PROJECTS\ESCAPEROOM\SCHEMATICS\ESCAPEROOM1SEASON1.DSN")
-      (Schematic "SCHEMATIC1")
-      (Page "DEVICES"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -31 52 1362 52 511")
-        (Scroll "-131 85")
-        (Zoom "103")
-        (Occurrence "/"))
-      (Path
-         "C:\USERS\CHRIS\DOCUMENTS\PROJECTS\ESCAPEROOM\SCHEMATICS\ESCAPEROOM1SEASON1.DSN")
-      (Schematic "SCHEMATIC1")
-      (Page "ARDUINO:PART1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -31 208 1466 208 739")
-        (Scroll "-105 0")
-        (Zoom "103")
-        (Occurrence "/"))
-      (Path
-         "C:\USERS\CHRIS\DOCUMENTS\PROJECTS\ESCAPEROOM\SCHEMATICS\ESCAPEROOM1SEASON1.DSN")
-      (Schematic "SCHEMATIC1")
-      (Page "ADCs--Lasers"))))
+        (Placement "44 0 1 -1 -1 -8 -31 0 483 0 420"))
+      (Tab 0))))
