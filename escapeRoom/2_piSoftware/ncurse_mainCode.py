@@ -1,61 +1,45 @@
-#import bluetooth				#handle bluetooth communication
 from threading import Thread	#handle threading
-from queue import *				#handle Queue functionality
-import curses, time				#ncurses stuff
+from Queue import *				#handle Queue functionality
+import curses			#ncurses stuff	
+import time
 
-#setup connection for all devices, update these
-bd_addr0 = "98:D3:31:FC:59:F0" #arduino 1 - nfc
-bd_addr1 = "98:D3:31:FC:6C:97"#arduino 2 - main cube
-bd_addr2 = "98:D3:31:FC:5A:09"  #arduino 3 - magnet
-bd_addr3 = "98:D3:31:FD:68:77" #arduino 4 - laser
-
-#setup socket per device
-port = 1
-
-nfcArduino_queue = Queue()
-mainCubeArduino_queue = Queue()
-magnetArduino_queue = Queue()
-laserArduino_queue = Queue()
-raspPi_queue = Queue()
 timer_queue = Queue()
+threadStop = Queue()
 hint_queue = Queue()
 
-#commands
+#commands for various software sections
 hintCommand = "hint"
 quitCommand = "olesQuit"
 startCommand = "olesStart"
-minutes = 20
-isPassDone = 0
 
-#titles for user input are below
+#variables to keep track of software progress
 
+wordLength = 30
+minutes = 20	#number of minutes in timer countdown
+
+#various variables used in software
+adminTitle ="          ADMIN"
+userTitle="     NAME OF 4TH DIMENSION"
+passTitle="            ORIGIN"
+hintTitle="              TYPE -HINT- ANYTIME FOR PUZZLE CLUE"
+ncursesResult = 0
 userAnswer1 = "MYGEETONIA"
 userAnswer2 = "mygeetonia"
-passAnswer1 = "EARTH" 
+passAnswer1 = "EARTH"
 passAnswer2 = "earth"
-adminTitle = "            ADMIN"
-userTitle = "     NAME OF 4TH DIMENSION"
-passTitle = "            ORIGIN"
-hintItem = "              TYPE -HINT- ANYTIME FOR PUZZLE CLUE"
 
-isTimerKilled = 0
-
-def isLetter(possibleLetter):
-	if possibleLetter > 64:
-		if possibleLetter < 91:
-			return 1
-		else:
-			return 0
-	else:
-		if possibleLetter > 96:
-			if possibleLetter < 123:
-				return 1
-			else:
-				return 0
 def countdown():
-	#keeps track of countdown timer
 	t = minutes * 60
 	while t:
+		if threadStop.empty():
+			pass
+		else:
+			if threadStop.get(True) == 1:
+				t = 0
+				mins = 0
+				secs = 0
+				timeformat = ""
+			threadStop.task_done()
 		mins, secs = divmod(t, 60)
 		timeformat = '{:02d}:{:02d}'.format(mins, secs)
 		#print(timeformat, end='\r')
@@ -67,236 +51,69 @@ def countdown():
 		time.sleep(1)
 		t -= 1
 	timer_queue.put(t, True)
-#thread setup
-#nfcArduino_thread = Thread(target=nfcArduinoFunctions, args=(stuff1,stuff2))				
-#nfcArduino_thread = Thread(target=nfcArduinoFunctions)
-#mainCubeArduino_thread = Thread(target=mainCubeArduinoFunctions)
-#magnetArduino_thread = Thread(target=magnetArduinoFunctions)
-#laserArduino_thread = Thread(target=laserArduinoFunctions)
-#mainLogic_thread = Thread(target=mainFunction)
-timer_thread = Thread(target=countdown)
+def isLetter(possibleLetter):
+	if 64 < possibleLetter < 91:
+		return 1
+	else:
+		if 96 < possibleLetter < 123:
+			return 1
+	return 0
 
-#nfcArduino_thread.setDaemon(True)
-#mainCubeArduino_thread.setDaemon(True)
-#magnetArduino_thread.setDaemon(True)
-#laserArduino_thread.setDaemon(True)
-#mainLogic_thread.setDaemon(True)
-timer_thread.setDaemon(True)
 
-def killCommand():
-	#nfcArduino_thread.terminate()
-	#mainCubeArduino_thread.terminate()
-	#magnetArduino_thread.terminate()
-	#laserArduino_thread.terminate()
-	#mainLogic_thread.terminate()
-	timer_thread.terminate()
-	
-	curses.nocbreak()
-	mainBody.keypad(False)
-	curses.echo()
-	curses.endwin()
-def hintFunction():
-	#hint functionality
-	magnetArduino_queue.put("202"   , True)
-	time.sleep(10)
-	magnetArduino_queue.put("201"   , True)
-#checks if data is a letter
-
-def arduinoConnect():
-	message = ""
-	try:
-		sock0 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock0.connect((bd_addr0,port))
-		sock0.setblocking(0)
-		message = message + "bluetooth success, NFC:"
-	except:
-		message = message + "bluetooth error, NFC:"
-	try:
-		sock1 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock1.connect((bd_addr1,port))
-		sock1.setblocking(0)
-		message = message + "bluetooth success, main Cube:"
-	except:
-		message = message + "bluetooth error, main Cube:"
-	try:
-		sock2 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock2.connect((bd_addr2,port))
-		sock2.setblocking(0)
-		message = message + "bluetooth success, magnet:"
-	except:
-		message = message + "bluetooth error, magnet:"
-	try:
-		sock3 = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
-		sock3.connect((bd_addr3,port))
-		sock3.setblocking(0)
-		message = message + "bluetooth success, laser:"
-	except:
-		message = message + "bluetooth error, laser:"	
-	adminHint_queue.put(message,True)
-
-def ncursesFunction(titleWindow,textWindow, hintWindow):
-	count = 0
-	isUserDone = 0
+def ncursesAdmin():
 	tempAnswer = ""
-	while(isPassDone == 0):
-		if count == 0:
-			count = 1
-			
-			#timer
-			begin_x = 68
-			begin_y = 7
-			height = 3
-			width = 6
-			timer = curses.newwin(height, width, begin_y, begin_x)
-			timer.box()
-			timer.refresh()
-			
-			titleWindow.addstr(userTitle)
-			titleWindow.refresh()
-			
-		
-		else:
-			pass
-		if hint_queue.empty():
-			pass
-		else:
-			hintWindow.clear()
-			hintWindow.addstr(hint_queue.get(False) )
-			hintWindow.refresh()
-		
-		if timer_queue.empty():
-			pass
-		else:
-			tempTime = timer_queue.get(True)
-			if tempTime:
-				if (isDonePassword == 0)  :
-					timer.clear()
-					timer.addstr(tempTime )
-					timer.refresh()
-					window2.refresh()
-						
-		data = textWindow.getch()
-		if data > 0 :
-			if data == 10:
-				if isUserDone == 0:
-					if tempAnswer == userAnswer1 or tempAnswer == userAnswer2:
-						titleWindow.clear()
-						titleWindow.addstr(userTitle)
-						tempAnswer = ""
-						textWindow.clear()
-						textWindow.refresh()
-						isUserDone = 1
-						titleWindow.refresh()
-					else:
-						if tempAnswer == quitCommand:
-							killCommand()
-						else:
-							if tempAnswer == hintCommand:
-								hintFunction()
-							else:
-								pass
-						tempAnswer = ""
-						textWindow.clear()
-						textWindow.refresh()
-				else:
-					if isUserDone == 1:
-						if tempAnswer == passAnswer1 or tempAnswer == passAnswer2:
-							titleWindow.clear()
-							titleWindow.addstr(passTitle)
-							isPassDone = 1
-							textWindow.clear()
-							textWindow.refresh()
-							titleWindow.refresh()
-						else:
-							if tempAnswer == quitCommand:
-								killCommand()
-							else:
-								if tempAnswer == hintCommand:
-									hintFunction()
-								else:
-									pass
-							tempAnswer = ""
-							textWindow.clear()
-							textWindow.refresh()
-					else:
-						if tempAnswer == quitCommand:
-							killCommand()
-						else:
-							if tempAnswer == hintCommand:
-								hintFunction()
-							else:
-								pass
-						tempAnswer = ""
-						textWindow.clear()
-						textWindow.refresh()
-			else:
-				if data == 263 :
-					tempAnswer = tempAnswer[: len(tempAnswer)-1]
-					textWindow.clear()
-					textWindow.addstr(tempAnswer)
-					textWindow.refresh()
-				else:
-					if isLetter(data) == 1 or data == 126:
-						c = chr(data)
-						if tempAnswer == "":
-							tempAnswer = c
-						else:
-							tempAnswer = tempAnswer + c
-						textWindow.addch(c)
-						textWindow.refresh()
-					else:
-						pass
-		else:
-			pass
-			
-			
-			
-def mainNCurses():
-	tempAnswer = ""
+	letterCount = 0
 	try:
 		mainwindow = curses.initscr()
-		mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
+		#mainWindow_height,mainWindow_width = mainwindow.getmaxyx()
 		curses.raw()
 		curses.cbreak()
 		curses.noecho()
 		mainwindow.refresh()
-
+		
+		#timer
+		begin_x = 68
+		begin_y = 7
+		height = 3
+		width = 6
+		timer = curses.newwin(height,width,begin_y,begin_x)
+		timer.refresh()
+		
 		#user input
 		begin_x = 36
 		begin_y = 16
 		height = 15
 		width = 74
-		mainBodyBorder = curses.newwin(height, width, begin_y, begin_x)
-		mainBodyBorder.box()
-		mainBodyBorder.refresh()
+		bodyBorder = curses.newwin(height, width, begin_y, begin_x)
+		bodyBorder.box()
+		bodyBorder.refresh()
 		
 		begin_x = 60
 		begin_y = 23
 		height = 5
 		width = 48
-		mainBody = curses.newwin(height, width, begin_y, begin_x)
-		mainBody.nodelay(1)
-		mainBody.keypad(1)
-		mainBody.refresh()
+		body = curses.newwin(height, width, begin_y, begin_x)
+		body.nodelay(1)
+		body.keypad(1)
+		body.refresh()
 		
 		# text border
 		begin_x = 57
 		begin_y = 14
 		height = 5
 		width = 32
-		mainTitleBorder = curses.newwin(height, width, begin_y, begin_x)
-		mainTitleBorder.box()
-		mainTitleBorder.refresh()
+		titleBorder = curses.newwin(height, width, begin_y, begin_x)
+		titleBorder.box()
+		titleBorder.refresh()
 		
 		#textbox
 		begin_x = 58
 		begin_y = 16
 		height = 1
 		width = 30
-		mainTitle = curses.newwin(height, width, begin_y, begin_x)
-		mainTitle.clear()
-		mainTitle.addstr(adminTitle)
-		mainTitle.refresh()
+		title = curses.newwin(height, width, begin_y, begin_x)
+		title.addstr( adminTitle)
+		title.refresh()
 		
 		#hint box
 		begin_x = 45
@@ -305,57 +122,170 @@ def mainNCurses():
 		width = 74
 		hint = curses.newwin(height, width, begin_y, begin_x)
 		hint.refresh()
+		body.refresh()
 		
-		while(1):
-			if hint_queue.empty():
-				pass
-			else:
-				hint.clear()
-				hint.addstr(adminHint_queue.get(False) )
-				hint.refresh()
-			
-			data = mainBody.getch()
+		while True:
+			isDonePassword = 0
+			data = body.getch()
 			if data > 0 :
-				if isLetter(data) == 1 or data == 126:
-					c = chr(data)
-					if tempAnswer == "":
-						tempAnswer = c
+				if data == 263 :
+					if tempAnswer != "":
+						if len(tempAnswer) == 1:
+							tempAnswer = ""
+						else:
+							tempAnswer = tempAnswer[: len(tempAnswer)-1]
+						body.clear( )
+						body.addstr(tempAnswer)
+						body.refresh()	
 					else:
-						tempAnswer = tempAnswer + c
-					mainBody.addch(c)
-					mainBody.refresh()
+						pass
 				else:
-					if data == 263 :
-						tempAnswer = tempAnswer[: len(tempAnswer)-1]
-						mainBody.clear()
-						mainBody.addstr(tempAnswer)
-						mainBody.refresh()
+					if isLetter(data) == 1:
+						letter = chr(data)
+						if letterCount < wordLength:
+							if tempAnswer == "":
+								tempAnswer = letter
+								letterCount = 1 
+							else:
+								tempAnswer += letter
+								letterCount += 1
+							body.clear( )
+							body.addstr(tempAnswer)
+							body.refresh()	
+						else:
+							letterCount = 0 
+							tempAnswer = letter
+							body.clear( )
+							body.addstr(tempAnswer)
+							body.refresh()
 					else:
 						if data == 10:
 							if tempAnswer == startCommand:
+								title.clear()
+								body.clear()
+								title.addstr(userTitle)
+								title.refresh()
+								body.refresh()
 								tempAnswer = ""
-								hint.clear()
-								hint.refresh()
-								mainTitle.addstr(userTitle)
-								
-								#nfcArduino_thread.start()
-								#mainCubeArduino_thread.start()
-								#magnetArduino_thread.start()
-								#laserArduino_thread.start()
-								#mainLogic_thread.start()
+								#time.sleep(5)	#sleep for 5 seconds
+								timer_thread = Thread(target=countdown)
+								timer_thread.setDaemon(True)
 								timer_thread.start()
-								
-								escapeRoomResult = ncursesFunction(mainTitle, mainBody, hint)
+								while isDonePassword == 0:
+									if timer_queue.empty():
+										pass
+									else:
+										tempTime = timer_queue.get(True)
+										if tempTime != "00:01":
+											if isDonePassword == 0  :
+												timer.clear()
+												timer.addstr(tempTime )
+												timer.refresh()
+												body.refresh()
+											else:
+												isDonePassword = 2
+									
+									data = body.getch()
+									if data == 263 :
+										if tempAnswer != "":
+											if len(tempAnswer) == 1:
+												tempAnswer = ""
+											else:
+												tempAnswer = tempAnswer[: len(tempAnswer)-1]
+											body.clear( )
+											body.addstr(tempAnswer)
+											body.refresh()	
+										else:
+											pass
+									else:
+										if isLetter(data) == 1:
+											if letterCount < wordLength:
+												letter = chr(data)
+												if tempAnswer == "":
+													tempAnswer = letter
+													letterCount = 1 
+												else:
+													tempAnswer += letter
+													letterCount += 1
+												body.clear( )
+												body.addstr(tempAnswer)
+												body.refresh()	
+											else:
+												letterCount = 0 
+												tempAnswer = letter
+												body.clear( )
+												body.addstr(tempAnswer)
+												body.refresh()
+										else:
+											if (data == 10):
+												if tempAnswer == userAnswer1 or tempAnswer == userAnswer2:
+													#change to password section
+													body.clear()
+													title.clear()
+													title.addstr(passTitle)
+													tempAnswer = ""
+													letterCount = 0
+													title.refresh()
+													body.refresh()
+												if tempAnswer == passAnswer1 or tempAnswer == passAnswer2:
+													isDonePassword = 1
+													tempAnswer = ""
+													letterCount = 0
+												else:
+													if (tempAnswer == hintCommand):
+														#do hint
+														hint.clear()
+														hint.addstr("I shall give you pity points. Here's a Clue.")
+														#hintFunction()
+														hint.refresh()
+													if (tempAnswer == quitCommand):
+														isDonePassword = 3
+													tempAnswer = ""
+													curses.beep()
+													body.clear()
+													body.refresh()
+											else:
+												pass
+									
+								if isDonePassword == 1:
+									#user and pass are correct
+									hint.clear()
+									threadStop.put(1);#to stop timer
+									hint.addstr("escapeRoom is complete")
+									hint.refresh()
+								else:
+									if isDonePassword == 3:
+										#quit partway
+										hint.clear()
+										threadStop.put(1,True);#to stop timer
+										hint.addstr("room was incomplete")
+										hint.refresh()
+									else:
+										if isDonePassword == 2:
+											#out of time
+											hint.clear()
+											hint.addstr("room ran out of time")
+											hint.refresh()
+										else:
+											pass
+								isDonePassword = 0
+								title.clear()
+								title.addstr( adminTitle)
+								title.refresh()
 							else:
-								if tempAnswer == quitCommand:
-									killCommand()
-								tempAnswer = ""
-								mainBody.clear()
-								mainBody.refresh()
-	except:
-		killCommand()
-		
-mainNCurses()	
-
-
-	
+								pass
+							tempAnswer = ""
+							hint.clear()
+							body.clear()
+							hint.refresh()
+							title.refresh()
+							body.refresh()
+							letterCount = 0 
+						else:
+							pass
+	except: 
+		curses.nocbreak()
+		body.keypad(False)
+		curses.echo()
+		curses.endwin()
+ncursesAdmin()
