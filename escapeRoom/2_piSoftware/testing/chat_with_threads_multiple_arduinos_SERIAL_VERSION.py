@@ -6,7 +6,8 @@ import serial
 
 def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_event):
 	
-	MainCube_BT= serial.Serial("/dev/rfcomm3",9600)
+	#MainCube_BT= serial.Serial("/dev/rfcomm3",9600)
+	MainCube_BT= serial.Serial("/dev/rfcomm2",9600)
 	nfc_BT= serial.Serial("/dev/rfcomm1",9600)
 	
 	#magnet_BT= serial.Serial("/dev/rfcomm2",9600)

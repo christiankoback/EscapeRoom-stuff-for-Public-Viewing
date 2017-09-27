@@ -6,7 +6,8 @@ import serial
 
 def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_event):
 	
-	MainCube_BT= serial.Serial("/dev/rfcomm3",9600)
+	#MainCube_BT= serial.Serial("/dev/rfcomm3",9600)
+	MainCube_BT= serial.Serial("/dev/rfcomm2",9600)
 	nfc_BT= serial.Serial("/dev/rfcomm1",9600)
 	
 	#magnet_BT= serial.Serial("/dev/rfcomm2",9600)
@@ -25,7 +26,7 @@ def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_e
 		
 		
 #Check nfc_BT for codes
-		nfc_BT_BT.write("\n") #request an update
+		nfc_BT.write("\n") #request an update
 		data = nfc_BT.readline()		
 		#print 'data>'   + data+ '<'
 		if data.strip() != "!":
@@ -47,7 +48,7 @@ def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_e
 		while not toNfcCube.empty():
 			sendItem = toNfcCube.get()
 			print 'sending to NFC>' + sendItem + '<' 
-			MainCube_BT.write(sendItem)
+			nfc_BT.write(sendItem)
 
 	print 'bluetooth stopping'
 	

@@ -3,7 +3,8 @@ import time
  
 #bd_addr = "98:D3:31:FC:59:F0" arduino 1
 #bd_addr = "00:06:66:08:5F:A8" #Firefly
-bd_addr = "98:D3:31:FC:6C:97" #main cube arduino
+#bd_addr = "98:D3:31:FC:6C:97" #main cube arduino
+bd_addr = "98:D3:31:FC:5A:09" #magnet
 
 sock = bluetooth.BluetoothSocket (bluetooth.RFCOMM)
 sock.connect((bd_addr,1))

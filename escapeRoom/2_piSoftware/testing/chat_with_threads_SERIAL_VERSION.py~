@@ -12,7 +12,7 @@ def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_e
 	#nfc_BT= serial.Serial("/dev/rfcomm1",9600)
 	#nfc_BT.flushInput()
 	
-	#magnet_BT= serial.Serial("/dev/rfcomm2",9600)
+	#MainCube_BT= serial.Serial("/dev/rfcomm2",9600)
 	#magnet_BT.flushInput()
 	
 	#laser_BT= serial.Serial("/dev/rfcomm4",9600)
@@ -24,6 +24,8 @@ def bluetoothFunction(incoming, toLaser, toMagnet, toMainCube, toNfcCube, stop_e
 		#print 'doing bluetooth'
 		
 		MainCube_BT.write("\n") #request an update
+
+
 		data = MainCube_BT.readline()		
 		#print 'data>'   + data+ '<'
 		if data.strip() != "!":
