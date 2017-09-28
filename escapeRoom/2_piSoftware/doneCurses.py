@@ -4,7 +4,7 @@ import curses			#ncurses stuff
 import time
 
 timer_queue = Queue()
-threadStop = Queue()
+timerThreadStop = Queue()
 hint_queue = Queue()
 
 #commands for various software sections
@@ -31,26 +31,32 @@ passAnswer2 = "earth"
 def countdown():
 	t = minutes * 60
 	while t:
-		if threadStop.empty():
+		if timerThreadStop.empty():
 			pass
 		else:
-			if threadStop.get(True) == 1:
+			if timerThreadStop.get(True) == "stopTimer":
 				t = 0
-				mins = 0
-				secs = 0
-				timeformat = ""
-			threadStop.task_done()
-		mins, secs = divmod(t, 60)
-		timeformat = '{:02d}:{:02d}'.format(mins, secs)
-		#print(timeformat, end='\r')
-		if timer_queue.empty():
-				pass
+				timerThreadStop.task_done()
+			
+		if t > 0:	
+			mins, secs = divmod(t, 60)
+			timeformat = '{:02d}:{:02d}'.format(mins, secs)
+			#print(timeformat, end='\r')
+			if timer_queue.empty():
+					pass
+			else:
+				garbage = timer_queue.get(True)
+			timer_queue.put( timeformat , True)
+			time.sleep(1)
+			t -= 1
+			timer_queue.put(t, True)
 		else:
-			garbage = timer_queue.get(True)
-		timer_queue.put( timeformat , True)
-		time.sleep(1)
-		t -= 1
-	timer_queue.put(t, True)
+			mins = 0
+			secs = 0
+			timeformat = ""
+			while timer_queue.empty() == False:
+				garbage = timer_queue.get(True)
+			timer_queue.task_done()
 def isLetter(possibleLetter):
 	if 64 < possibleLetter < 91:
 		return 1
@@ -178,10 +184,13 @@ def ncursesAdmin():
 										tempTime = timer_queue.get(True)
 										if tempTime != "00:01":
 											if isDonePassword == 0  :
-												timer.clear()
-												timer.addstr(tempTime )
-												timer.refresh()
-												body.refresh()
+												if timer.instr(5) == tempTime:
+													pass
+												else:
+													timer.clear()
+													timer.addstr(tempTime)
+													timer.refresh()
+													body.refresh()
 											else:
 												isDonePassword = 2
 									
@@ -250,14 +259,13 @@ def ncursesAdmin():
 								if isDonePassword == 1:
 									#user and pass are correct
 									hint.clear()
-									threadStop.put(1);#to stop timer
 									hint.addstr("escapeRoom is complete")
 									hint.refresh()
 								else:
 									if isDonePassword == 3:
 										#quit partway
 										hint.clear()
-										threadStop.put(1,True);#to stop timer
+										timerThreadStop.put(1,True);#to stop timer
 										hint.addstr("room was incomplete")
 										hint.refresh()
 									else:
@@ -268,12 +276,14 @@ def ncursesAdmin():
 											hint.refresh()
 										else:
 											pass
+								timerThreadStop.put("stopTimer",True)
 								isDonePassword = 0
 								title.clear()
 								title.addstr( adminTitle)
 								title.refresh()
 							else:
 								pass
+								
 							tempAnswer = ""
 							hint.clear()
 							body.clear()

@@ -1,25 +1,22 @@
-/* purpose: handles all lasers
+/*
+  laserArduino.ino   ---- Escape Room 1 Season 1
+Purpose:  - manage behaviour of all lasers 
+          - manage all sensors via ADC components
+          - manage behaviour of all LEDs for sensors
+          -manage motors for lasers 
 
+Main Programmer: Chris Koback
+                 Oles Shnurovskyy
 */
 #include <Servo.h>
 #include <Wire.h>
 #include <Adafruit_ADS1015.h>
 
 
-//servo range is anything above 10 and less than 40
-//create instance of ADCs
-Adafruit_ADS1015 ads1015_1(0x48);
-Adafruit_ADS1015 ads1015_2(0x49);
-Adafruit_ADS1015 ads1015_3(0x4A);
-Adafruit_ADS1015 ads1015_4(0x4B);
-/*
- *blue = pan   = pin 12
- *yellow = tilt = pin 13
- */
+/*custom laser behaviour & sensor values*/
+//sensor range is anything above 10 and less than 40
 int servoLaser = 22;
 int servoLaserLED = 23;
-int tiltPin = 13;
-int panPin = 12;
 int servoSensorAdc = 0;
 int16_t servoSensor;
 int servoSensorMin = 10;
@@ -47,6 +44,14 @@ void toggleServoLaser(){
     toggleServoLaserVal = 0;
   }
 }
+/*end of custom laser behaviour & sensor values  */
+/* pan-Tilt servo stuff 
+    blue = pan   = pin 12
+    yellow = tilt = pin 13
+ */
+int tiltPin = 13;
+int panPin = 12;
+
 Servo panServo;
 Servo tiltServo;
 
@@ -80,8 +85,6 @@ void setupServoLaser(){
   tiltServo.attach(tiltPin);
   pinMode(servoLaser, OUTPUT);
   pinMode(servoLaserLED,OUTPUT);
-  startServoLaser();
-  
 }
 void startLaser(int laserPin){
   digitalWrite(laserPin, HIGH);
@@ -93,7 +96,7 @@ void setupLaser(int laserPin){
   pinMode(laserPin, OUTPUT);
   startLaser(laserPin);
 }
-
+/*end of pan tilt servo stuff  */
 //bluetooth stuff
 #ifndef BT_SETUP__
 #define BT_SETUP__
@@ -124,9 +127,21 @@ byte* getBTCode(int strLength){
 }
 #endif
 
+
+
+
 //code command stuff
 int panTiltChangeLocationCommand = 0;
 int panTiltReset = 1;
+
+
+/*ADC init  */
+//create instance of ADCs
+Adafruit_ADS1015 ads1015_1(0x48);
+Adafruit_ADS1015 ads1015_2(0x49);
+Adafruit_ADS1015 ads1015_3(0x4A);
+Adafruit_ADS1015 ads1015_4(0x4B);
+/* end of ADC init  */
 
 void setup() {
   // put your setup code here, to run once:
@@ -139,33 +154,12 @@ void setup() {
   ads1015_4.begin();
 
   setupServoLaser();
-  //startServoLaser();    //testing
 }
 int codeLen = 3;
 int tempLaser = 0;
 int panIndex = 0;
 void loop() {
-  //code base
-  /*
   servoSensor = ads1015_1.readADC_SingleEnded(0);
-  Serial.print("adc value: ");
-  Serial.println(servoSensor);
-  toggleServoLED();
-  toggleServoLaser();
-  //delay(800);
-
-  if (panIndex == 3){
-    panIndex = 0;
-  }
-  panServo.write (panLocations[panIndex]);
-  tiltServo.write (tiltLocations[panIndex]);
-  panIndex++;
-  delay(2000);
-  */
-  
-  servoSensor = ads1015_1.readADC_SingleEnded(0);
-  //Serial.print("adc value: ");
-  //Serial.println(servoSensor);
   if( (servoSensor > servoSensorMin) && (servoSensor < servoSensorMax) ){
     stopServoLaser();
     char message[codeLen] = {'5', '0', '1' };
@@ -174,9 +168,6 @@ void loop() {
   else{
     //Serial.println("     SENSOR IS   NOT    ON !!  ");
   }
- // delay(2000);
-
-  // put your main code here, to run repeatedly:
   if  (Serial1.available() ){
       BTCode = getBTCode(btCodeLength);
       if (BTCode[0] != ' '  ){
