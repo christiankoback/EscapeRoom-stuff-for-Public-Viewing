@@ -392,9 +392,13 @@ void setupCat5Puzzle(){
 /* end of cat5 puzzle stuff */
 
 
+    // Bluetooth variables/setupbles
+String inData;
+String token;
 
 void setup() {
   Serial.begin(9600);   //testing
+  Serial1.begin(9600);    //bluetooth setup
   
   nfc.begin();
   nfc.SAMConfig();
@@ -403,11 +407,7 @@ void setup() {
   cardManager.manageCards::cardSetup();
   setupCat5Puzzle();
   pinMode(chestButtonPin, INPUT_PULLUP);
-
-  #ifndef SERIAL1_SETUP__
-  #define SERIAL1_SETUP__
-  Serial1.begin(9600);    //bluetooth setup
-  #endif
+  
   strip.setBrightness(BRIGHTNESS);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
@@ -418,6 +418,64 @@ void setup() {
 }
 
 void loop() {
+
+  if (Serial1.available() > 0){
+    inData = Serial1.readStringUntil('\n');
+    Serial.println("inData>" + inData + "<");
+    
+    while (inData.length() > 2) {
+      token = inData.substring(0,3);
+      inData = inData.substring(3,inData.length());
+      //Serial.println("token>" + token + "<");
+      //Serial.println("inData>" + inData + "<");
+      //Serial.println("");
+  
+      if (token == "000") {                          // Reply to alive request DO NOT DELETE
+        //Serial.println("");
+        Serial1.println("!");    
+     
+        } if (token == "XXX") {                       // 
+        //Serial.println("LED-RED");
+        //Serial1.println("LED-RED");   
+        
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     //
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+      
+      } else {
+        Serial1.println("!");  
+      }
+    } //end while inData
+  } // end if serial available
+} // end loop
+
+
+
+  /*
   if  (Serial1.available() ){
     BTCode = getBTCode(btCodeLength);
     if (BTCode[0] != ' '  ){
@@ -474,4 +532,5 @@ void loop() {
     sendBTCode(chestButtonCode, 3);
   }
   delay(50);
+  */
 }

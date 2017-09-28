@@ -4,9 +4,6 @@ Purpose:  - manage behaviour of all lasers
           - manage all sensors via ADC components
           - manage behaviour of all LEDs for sensors
           -manage motors for lasers 
-
-Main Programmer: Chris Koback
-                 Oles Shnurovskyy
 */
 #include <Servo.h>
 #include <Wire.h>
@@ -142,6 +139,10 @@ Adafruit_ADS1015 ads1015_2(0x49);
 Adafruit_ADS1015 ads1015_3(0x4A);
 Adafruit_ADS1015 ads1015_4(0x4B);
 /* end of ADC init  */
+    
+    // Bluetooth variables/setupbles
+String inData;
+String token;
 
 void setup() {
   // put your setup code here, to run once:
@@ -168,6 +169,62 @@ void loop() {
   else{
     //Serial.println("     SENSOR IS   NOT    ON !!  ");
   }
+
+   if (Serial1.available() > 0){
+    inData = Serial1.readStringUntil('\n');
+    Serial.println("inData>" + inData + "<");
+    
+    while (inData.length() > 2) {
+      token = inData.substring(0,3);
+      inData = inData.substring(3,inData.length());
+      //Serial.println("token>" + token + "<");
+      //Serial.println("inData>" + inData + "<");
+      //Serial.println("");
+  
+      if (token == "000") {                          // Reply to alive request DO NOT DELETE
+        //Serial.println("");
+        Serial1.println("!");    
+     
+        } if (token == "XXX") {                       // 
+        //Serial.println("LED-RED");
+        //Serial1.println("LED-RED");   
+        
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     //
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+      
+      } else {
+        Serial1.println("!");  
+      }
+    } //end while inData
+  } // end if serial available
+
+  
+  /*
   if  (Serial1.available() ){
       BTCode = getBTCode(btCodeLength);
       if (BTCode[0] != ' '  ){
@@ -202,4 +259,5 @@ void loop() {
           }
       }
   }
+  */
 }
