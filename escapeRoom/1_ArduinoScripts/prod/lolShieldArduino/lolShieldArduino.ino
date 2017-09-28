@@ -1,12 +1,10 @@
 /*
+  mainCubeArduino
   lolShieldArduino.ino   ---- Escape Room 1 Season 1
-Purpose:  - display letters on LoL shield in groups of 4 LED lights. ex a -> first 2 LEDS in row 1 and 2 light up
-          - take input from keypad and check input against keypad answer/goal
-          - manage the turning on and off of glowing EL wire
-          -setup the checking of pwm values for cat5 puzzle
-
-Main Programmer: Chris Koback
-                 Oles Shnurovskyy
+  Purpose:  - display letters on LoL shield in groups of 4 LED lights. ex a -> first 2 LEDS in row 1 and 2 light up
+            - take input from keypad and check input against keypad answer/goal
+            - manage the turning on and off of glowing EL wire
+            - setup the checking of pwm values for cat5 puzzle
 */
 #include <LEDStrip.h>
 #include <Keypad.h>
@@ -63,6 +61,7 @@ int checkKeypadOutput(){
   return keyPressed;
 }
 /*end of keypad stuff*/
+
 /* lol shield stuff */
 String charPart0= "mskaigf";
 String charPart1 = "qxdo?nh";
@@ -273,7 +272,7 @@ const manageGlowingWire::GeneralFunction manageGlowingWire::lightWireAction[5] =
     &manageGlowingWire::lightWire1, 
     &manageGlowingWire::lightWire2, 
     &manageGlowingWire::lightWire3,
-  &manageGlowingWire::lightWire4
+    &manageGlowingWire::lightWire4
   };
    // array of function pointers
 const manageGlowingWire::GeneralFunction manageGlowingWire::turnOffAction[5] =
@@ -282,7 +281,7 @@ const manageGlowingWire::GeneralFunction manageGlowingWire::turnOffAction[5] =
     &manageGlowingWire::turnOff1, 
     &manageGlowingWire::turnOff2, 
     &manageGlowingWire::turnOff3,
-  &manageGlowingWire::turnOff4
+    &manageGlowingWire::turnOff4
   };
 /*end of glowing wire stuff*/
 /*cat5 puzzle stuff  */
@@ -341,56 +340,77 @@ int lolShieldEnd = 42;
 int keypadBase = 17;
 int keypadEnd = 18;
 
-
-//functions section
-//bluetooth stuff
-#ifndef BT_SETUP__
-#define BT_SETUP__
-const int btCodeLength = 3;
-byte *BTCode;
-
-void sendBTCode(char * strWord,int strLength){
-  Serial1.write( "0" ); //garbage
-  for (int i = 0; i < strLength; i++){
-    Serial1.write( strWord[i] );
-  }
-}
-
-byte* getBTCode(int strLength){
-  byte message[strLength];
-  if  (Serial1.available() ){
-    //char garbage = Serial1.read();
-    while(Serial1.available() ){
-      for (int i = 0; i < strLength ; i ++){
-        message[i] = Serial1.read();
-      }
-    }
-  }
-  else{
-    message[0] = ' ';
-  }
-  return message;
-}
-#endif
-
+    // Bluetooth variables/setupbles
+String inData;
+String token;
 
 void setup() {
-  restartKeypad();    //init keypad
-  initLoLShield();    //init lol shield
-  
-  //init bluetooth
-  #ifndef SERIAL1_SETUP__
-  #define SERIAL1_SETUP__
-  Serial1.begin(9600);    //bluetooth setup
-  #endif
-
-  //init glowing wire
-  glowingWireManager.manageGlowingWire::wireSetup();
-  
+  Serial.begin(9600);     // Debug Window
+  Serial1.begin(9600);    // Bluetooth Communication - tx1,rx1
+  restartKeypad();        //init keypad
+  initLoLShield();        //init lol shield
+  glowingWireManager.manageGlowingWire::wireSetup();//init glowing wire
 }
 
 void loop() {
   
+
+  if (Serial1.available() > 0){
+    inData = Serial1.readStringUntil('\n');
+    Serial.println("inData>" + inData + "<");
+    
+    while (inData.length() > 2) {
+      token = inData.substring(0,3);
+      inData = inData.substring(3,inData.length());
+      //Serial.println("token>" + token + "<");
+      //Serial.println("inData>" + inData + "<");
+      //Serial.println("");
+  
+      if (token == "000") {                          // Reply to alive request DO NOT DELETE
+        //Serial.println("");
+        Serial1.println("!");    
+     
+        } if (token == "XXX") {                       // 
+        //Serial.println("LED-RED");
+        //Serial1.println("LED-RED");   
+        
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     //
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+
+        } else if (token == "XXX"){                     // 
+        //Serial.println("LED-OFF");
+        //Serial1.println("LED-OFF");
+      
+      } else {
+        Serial1.println("!");  
+      }
+    } //end while inData
+  } // end if serial available
+} // end loop
+
+    /////////////////////////////////////////////////////////////////
+    /*
     if  (Serial1.available() ){
       BTCode = getBTCode(btCodeLength);
       if (BTCode[0] != ' '  ){
@@ -482,5 +502,5 @@ void loop() {
   
   //check all cat5e pins to see if they are all on > if all on then don't check
   checkCat5Puzzle();
-  
+ */ 
 }
