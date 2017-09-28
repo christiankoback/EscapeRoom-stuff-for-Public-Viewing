@@ -295,7 +295,7 @@ int cat5_5_IN = A15;
 const int CAT5CABLENUM = 5; 
 int cat5Puzzle_pins[CAT5CABLENUM] = {cat5_1_IN, cat5_2_IN, cat5_3_IN, cat5_4_IN, cat5_5_IN};
 int cat5Puzzle_answersLow[CAT5CABLENUM] = { 1988, 954, 1668  ,74, 394};
-int cat5Puzzle_answersHigh[CAT5CABLENUM] = { 1994, 955 , 1674, 81,401};
+int cat5Puzzle_answersHigh[CAT5CABLENUM] = { 1994, 955, 1674, 81,401};
 int cat5Puzzle_tempAnswer[CAT5CABLENUM] = {0, 0 , 0, 0, 0};
 
 void resetCat5CablePuzzle(){
@@ -369,40 +369,44 @@ void loop() {
       if (token == "000") {                          // Reply to alive request DO NOT DELETE
         //Serial.println("");
         Serial1.println("!");    
-     
-        } if (token == "XXX") {                       // 
-        //Serial.println("LED-RED");
-        //Serial1.println("LED-RED");   
-        
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     //
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
       
-      } else {
+      }else if (token == "221") {                       // turn off all wires
+        glowingWireManager.resetWire();   
+      
+      } else if (token == "222"){                     // turn on wire1
+        glowingWireManager.lightWire0();
+
+      } else if (token == "223"){                     // turn on wire 2
+        glowingWireManager.lightWire1();
+
+      } else if (token == "224"){                     // turn on wire 3
+       glowingWireManager.lightWire2();
+
+      } else if (token == "225"){                     // turn on wire 4
+        glowingWireManager.lightWire3();
+
+      } else if (token == "226"){                     // turn on wire 5
+        glowingWireManager.lightWire4();
+      } else if (token == "227"){                     //turn off wire 1
+        glowingWireManager.turnOff0();
+
+      } else if (token == "240"){                     // clear the lol shield and blink wire 3
+        ClearShield();
+        glowingWireManager.blinkWire(3, 1000);
+      } else if (token == "241"){                     //change/increment the pattern on display
+        if (lolShieldPatternIndex == lolShieldPatternLength ){
+          lolShieldPatternIndex = 0;
+        }
+        ClearShield();
+        turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
+        lolShieldPatternIndex++;
+        glowingWireManager.blinkWire(3, 1000); 
+     
+        } else if (token == "317"){                     //reset keypad puzzle 
+            restartKeypad();
+        } else if (token == "319"){                     // reset cat 5 puzzle
+          resetCat5CablePuzzle();
+        } else {
         Serial1.println("!");  
       }
     } //end while inData
@@ -410,6 +414,12 @@ void loop() {
 } // end loop
 
     /////////////////////////////////////////////////////////////////
+/* cat 5 transmit -> pwm - dealt by nfc arduino    pwm -> converted to a specific value
+   specific value -> used in lol shield -> within the check checkCat5Puzzle();
+
+
+
+  */  
     /*
     if  (Serial1.available() ){
       BTCode = getBTCode(btCodeLength);

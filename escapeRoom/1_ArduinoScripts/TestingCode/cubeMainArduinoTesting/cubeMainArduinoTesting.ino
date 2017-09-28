@@ -507,7 +507,7 @@ int ledRingTestingIndex = 0;
 void setup() {
   Serial.begin(9600);   //testing
 /*
-  //meant for main arduino
+  //meant for lol shield arduino
   restartKeypad();    //init keypad
   initLoLShield();    //init lol shield
   
