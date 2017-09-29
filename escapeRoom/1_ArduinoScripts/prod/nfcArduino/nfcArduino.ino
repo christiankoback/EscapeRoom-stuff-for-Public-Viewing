@@ -434,17 +434,14 @@ void loop() {
         //Serial.println("");
         Serial1.println("!");    
      
-        } if (token == "XXX") {                       // 
-        //Serial.println("LED-RED");
-        //Serial1.println("LED-RED");   
+        } if (token == "231") {                       // 
+          turnOffRing();   
         
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
+        } else if (token == "232"){                     // 
+         rainbowInRotatingWheel2White(5,10,10);
 
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
+        } else if (token == "233"){                     // 
+          fadeInColor('b',2);
 
         } else if (token == "XXX"){                     // 
         //Serial.println("LED-OFF");
@@ -471,6 +468,25 @@ void loop() {
       }
     } //end while inData
   } // end if serial available
+
+  
+  // checks if valid nfc card is tapped and do corresponding functionality
+  if ( cardUID != 0 ){
+    //go through all stored nfc cards and check if a valid card is tapped
+    for (int i = 0; i < cardNum ; i++){
+      if (cardUID == validCards[i]){
+        manageCards::GeneralFunction cardAction = cardManager.manageCards::doCardAction[i];
+        (cardManager.*cardAction)();
+        break;
+      }
+    }
+  }
+
+  //checks if chest in box is open
+  if( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ){
+    chestButtonPrevValue = 1;
+    sendBTCode(chestButtonCode, 3);
+  }
 } // end loop
 
 
@@ -516,6 +532,8 @@ void loop() {
       }
     }
   }
+
+  // checks if valid nfc card is tapped and do corresponding functionality
   if ( cardUID != 0 ){
     //go through all stored nfc cards and check if a valid card is tapped
     for (int i = 0; i < cardNum ; i++){
@@ -526,7 +544,8 @@ void loop() {
       }
     }
   }
-  
+
+  //checks if chest in box is open
   if( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ){
     chestButtonPrevValue = 1;
     sendBTCode(chestButtonCode, 3);

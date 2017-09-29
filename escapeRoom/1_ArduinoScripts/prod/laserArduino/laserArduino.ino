@@ -160,6 +160,7 @@ int codeLen = 3;
 int tempLaser = 0;
 int panIndex = 0;
 void loop() {
+  /*  //checking sensor -- always
   servoSensor = ads1015_1.readADC_SingleEnded(0);
   if( (servoSensor > servoSensorMin) && (servoSensor < servoSensorMax) ){
     stopServoLaser();
@@ -169,7 +170,7 @@ void loop() {
   else{
     //Serial.println("     SENSOR IS   NOT    ON !!  ");
   }
-
+*/
    if (Serial1.available() > 0){
     inData = Serial1.readStringUntil('\n');
     Serial.println("inData>" + inData + "<");
@@ -185,21 +186,24 @@ void loop() {
         //Serial.println("");
         Serial1.println("!");    
      
-        } if (token == "XXX") {                       // 
-        //Serial.println("LED-RED");
-        //Serial1.println("LED-RED");   
+        } if (token == "300") {                       // 
+          changeServoLocation();   
         
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
+        } else if (token == "333"){                     // 
+          panTiltIndex = 0;
+          panServo.write (panLocations[panTiltIndex]);
+          tiltServo.write (tiltLocations[panTiltIndex]);
+          delay(30);    //wait for servo to reach location
 
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
+        } else if (token == "401"){                     // 
+          startServoLaser();
+        } else if (token == "402"){                     // 
 
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
+         // int laser2Pin = 26;
+         // digitalWrite(laser2Pin, HIGH);
+
+         /*read sensor -- readADC param 0 - 3, 0 = first sensor on ADC */
+         // servoSensor = ads1015_1.readADC_SingleEnded(0);
 
         } else if (token == "XXX"){                     // 
         //Serial.println("LED-OFF");
