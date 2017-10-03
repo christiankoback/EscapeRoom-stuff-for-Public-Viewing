@@ -52,6 +52,11 @@
     (Folder "Include Files"))
   (DefaultLibraryBrowseDirectory "library\PSpice")
   (PartMRUSelector
+    (correctArdShield
+      (FullPartName "correctArdShield.Normal")
+      (LibraryName
+         "C:\USERS\CHRIS\DOCUMENTS\PROJECTS\ESCAPEROOM\3_SCHEMATICS\ARDUINOLIBRARY.OLB")
+      (DeviceIndex "0"))
     (ADS_1015
       (FullPartName "ADS_1015.Normal")
       (LibraryName
@@ -124,12 +129,22 @@
          "c:\users\chris\documents\projects\escaperoom\3_schematics\escaperoom1season1.dsn"
          "SCHEMATIC1")
       (Path "Design Resources" "Library")
-      (Select "Design Resources"
-         "c:\users\chris\documents\projects\escaperoom\3_schematics\escaperoom1season1.dsn"
-         "SCHEMATIC1" "ARDUINO:PART1"))
+      (Path "Design Resources" "Library"
+         "c:\users\chris\documents\projects\escaperoom\3_schematics\arduinolibrary.olb"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -31 0 483 0 420"))
-      (Tab 0))))
+        (Placement "44 2 3 -1 -1 -8 -31 0 483 0 420"))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -8 -31 156 1466 156 615")
+        (Scroll "-146 75")
+        (Zoom "100")
+        (Occurrence "/"))
+      (Path
+         "C:\USERS\CHRIS\DOCUMENTS\PROJECTS\ESCAPEROOM\3_SCHEMATICS\ESCAPEROOM1SEASON1.DSN")
+      (Schematic "SCHEMATIC1")
+      (Page "DEVICES"))))
