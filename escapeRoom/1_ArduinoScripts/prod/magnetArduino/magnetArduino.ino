@@ -1,7 +1,8 @@
 /*
   magnetArduino.ino   ---- Escape Room 1 Season 1
-  Purpose:  - manage all functionality of LED light strip/s
-            - manage functionality of magnet release
+  Purpose:  - manage all functionality of:
+                  LED light strip
+                  magnet release
 */
 
             //led strip variables/setup

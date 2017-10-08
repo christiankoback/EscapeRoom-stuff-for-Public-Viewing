@@ -4,6 +4,13 @@ Purpose:  - manage behaviour of all lasers
           - manage all sensors via ADC components
           - manage behaviour of all LEDs for sensors
           -manage motors for lasers 
+
+
+ There will be 3 sensors on the ceiling, which will have to be enabled by mirrors from one laser on pan tilt.
+ The room will be filled with lasers, if any are tripped, restart the mirroring puzzle.
+ If all 3 boxes are enabled, send code to RPi.
+
+          
 */
 #include <Servo.h>
 #include <Wire.h>
@@ -204,22 +211,6 @@ void loop() {
 
          /*read sensor -- readADC param 0 - 3, 0 = first sensor on ADC */
          // servoSensor = ads1015_1.readADC_SingleEnded(0);
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     //
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
-
-        } else if (token == "XXX"){                     // 
-        //Serial.println("LED-OFF");
-        //Serial1.println("LED-OFF");
       
       } else {
         Serial1.println("!");  
