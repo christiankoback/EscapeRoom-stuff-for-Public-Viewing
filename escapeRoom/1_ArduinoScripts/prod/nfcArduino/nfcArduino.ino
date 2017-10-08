@@ -1,3 +1,9 @@
+#include <Adafruit_Circuit_Playground.h>
+#include <Adafruit_CircuitPlayground.h>
+
+#include <Adafruit_NeoPixel.h>
+#include <Adafruit_PN532.h>
+
 /*
   nfcArduino.ino   ---- Escape Room 1 Season 1
   Purpose:  - manage reading nfc cards and notifying RPi on which card was tapped
@@ -287,11 +293,6 @@ void setupCat5Puzzle() {
 
 /* end of cat5 puzzle stuff */
 
-
-// Bluetooth variables/setupbles
-String inData;
-String token;
-
 void setup() {
   Serial.begin(9600);   //testing
   Serial1.begin(9600);    //bluetooth setup
@@ -301,7 +302,7 @@ void setup() {
   nfc.setPassiveActivationRetries(0x1F);  // make the nfc more like a non-blocking function - try finding card 32 times
 
   cardManager.manageCards::cardSetup();
-  setupCat5Puzzle();
+  //setupCat5Puzzle();
   pinMode(chestButtonPin, INPUT_PULLUP);
 
   strip.setBrightness(BRIGHTNESS);
@@ -367,6 +368,3 @@ void loop() {
   }
 } // end loop
 
-
-
-}

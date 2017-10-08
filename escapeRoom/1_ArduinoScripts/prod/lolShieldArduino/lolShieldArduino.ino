@@ -43,7 +43,7 @@ int checkKeypadOutput() {
       if (key == '*') {
         restartKeypad();
         keyPressed = 3;
-      } else if ( key == "#") {
+      } else if ( key == '#') {
         if ( keypadAnswer == tempKeypadAnswer ) {
           keyPressed = 2;
           keypadPassIsComplete = 1;
@@ -313,8 +313,8 @@ void checkCat5Puzzle() {
 
         //code base
         int codeLen = 3;
-        char message[codeLen] = {'3', '1', (char)('1' + i) };
-        sendBTCode(message, codeLen);
+        //char message[codeLen] = {'3', '1', (char)('1' + i) };
+        //sendBTCode(message, codeLen);
       }
     }
   }
@@ -358,11 +358,13 @@ void loop() {
 
   if (Serial1.available() > 0) {
     inData = Serial1.readStringUntil('\n');
-    Serial.println("inData>" + inData + "<");
+    //Serial.println("inData>" + inData + "<");
 
     while (inData.length() > 2) {
       token = inData.substring(0, 3);
       inData = inData.substring(3, inData.length());
+      Serial.println("Token>" + token + "<");
+      Serial.println("inData>" + inData + "<");
       //Serial.println("token>" + token + "<");
       //Serial.println("inData>" + inData + "<");
       //Serial.println("");
@@ -372,9 +374,11 @@ void loop() {
         Serial1.println("!");
 
       } else if (token == "221") {                   // turn off all wires
+        Serial.println("221");
         glowingWireManager.resetWire();
 
       } else if (token == "222") {                    // turn on wire1
+        Serial.println("222");
         glowingWireManager.lightWire0();
 
       } else if (token == "223") {                    // turn on wire 2
@@ -515,4 +519,4 @@ void loop() {
   //check all cat5e pins to see if they are all on > if all on then don't check
   checkCat5Puzzle();
 */
-}
+
