@@ -13,54 +13,6 @@ String inData;
 String token;
 
 /*nfc stuff */
-class manageCards {
-  public:
-    void doCard0 ();
-    void doCard1 ();
-    void doCard2 ();
-    void doCard3 ();
-    void resetCards();
-    void cardSetup();
-    // typedef for class function
-    typedef void (manageCards::*GeneralFunction) ();
-    static const GeneralFunction doCardAction [4];
-};
-//testing info
-int pinLed = 22;
-int pinLed2 = 23;
-char cardTech = '1';
-int codeLength = 3;
-
-void manageCards::doCard0 ( ) {
-  Serial.println("1 was tapped");
-  Serial1.println("101");
-}
-void manageCards::doCard1 ( ) {
-  Serial.println("2 was tapped");
-  Serial1.println("102");
-}
-void manageCards::doCard2 ( ) {
-  Serial.println("3 was tapped");
-  Serial1.println("103");
-
-}
-void manageCards::resetCards() {
-  //digitalWrite(pinLed, LOW);
-  //digitalWrite(pinLed2, LOW);
-}
-void manageCards::cardSetup() {
-  //pinMode(pinLed, OUTPUT);
-  //pinMode(pinLed2, OUTPUT);
-  //digitalWrite(pinLed, LOW);
-  //digitalWrite(pinLed2, LOW);
-}
-// array of function pointers
-const manageCards::GeneralFunction manageCards::doCardAction[3] =
-{
-  &manageCards::doCard0,
-  &manageCards::doCard1,
-  &manageCards::doCard2
-};
 
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)  // Not connected by default on the NFC Shield
@@ -78,15 +30,8 @@ uint8_t uidLength;                        // Length of the UID (4 or 7 bytes dep
 //red bus pass = 650
 // cloth/flimsy bus pass = 761
 // blue bus pass = 276
-
-uint16_t validCards[] = { 650 , 761, 276 };
 uint16_t cardUID;
-uint8_t cardNum = 3;
 
-void nfcSetup() {
-  // configure board to read RFID tags
-  nfc.SAMConfig();
-}
 uint16_t retrieveUID() {
   uint16_t success;
   uint16_t cardUID = 0;
@@ -99,10 +44,7 @@ uint16_t retrieveUID() {
   return cardUID;
 }
 
-//init cardManager class
-manageCards cardManager;
-
-/*end of nfc init */
+/*end of nfc stuff */
 
 /* neopixel ring stuff  */
 int ledRingBase = 30;
@@ -403,6 +345,7 @@ void loop() {
   } // end if serial available
 
     //go through all stored nfc cards and check if a valid card is tapped
+    cardUID = retrieveUID();
     if (cardUID == 650) {
       Serial1.println("101"); 
     }
@@ -414,22 +357,8 @@ void loop() {
     } else {
       Serial1.println("!Bad_Nfc_Card"); 
     }
-
+    cardUID = 0;    //reset the variable to remove chance of reading same card multiple times
     
-/*
-  // checks if valid nfc card is tapped and do corresponding functionality
-  if ( cardUID != 0 ) {
-    //go through all stored nfc cards and check if a valid card is tapped
-    for (int i = 0; i < cardNum ; i++) {
-      if (cardUID == validCards[i]) {
-        manageCards::GeneralFunction cardAction = cardManager.manageCards::doCardAction[i];
-        (cardManager.*cardAction)();
-        break;
-      }
-    }
-  }
-*/
-
 
   //checks if chest in box is open
   if ( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ) {
