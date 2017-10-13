@@ -1,8 +1,5 @@
-#include <Adafruit_Circuit_Playground.h>
-#include <Adafruit_CircuitPlayground.h>
-
 #include <Adafruit_NeoPixel.h>
-#include <Adafruit_PN532.h>
+#include<stdio.h>
 
 /*
   nfcArduino.ino   ---- Escape Room 1 Season 1
@@ -291,8 +288,8 @@ void setupCat5Puzzle() {
   analogWrite(cat5e5_pin, cable5_value);
 }
 
-/* end of cat5 puzzle stuff */
-
+int cardToSend = 0;
+  
 void setup() {
   Serial.begin(9600);   //testing
   Serial1.begin(9600);    //bluetooth setup
@@ -301,7 +298,7 @@ void setup() {
   nfc.SAMConfig();
   nfc.setPassiveActivationRetries(0x1F);  // make the nfc more like a non-blocking function - try finding card 32 times
 
-  cardManager.manageCards::cardSetup();
+  //cardManager.manageCards::cardSetup();
   //setupCat5Puzzle();
   pinMode(chestButtonPin, INPUT_PULLUP);
 
@@ -312,13 +309,14 @@ void setup() {
     strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
   }
   strip.show();
+
 }
 
 void loop() {
 
   if (Serial1.available() > 0) {
     inData = Serial1.readStringUntil('\n');
-    Serial.println("inData>" + inData + "<");
+    //Serial.println("inData>" + inData + "<");
 
     while (inData.length() > 2) {
       token = inData.substring(0, 3);
@@ -347,16 +345,43 @@ void loop() {
 
     //go through all stored nfc cards and check if a valid card is tapped
     cardUID = retrieveUID();
-    if (cardUID == 650) {
-      Serial1.println("101"); 
+    cardToSend = 0;
+    if (cardUID == 650) { // Blue
+      cardToSend = 101;
+      strip.show(); // Initialize all pixels to 'off'
+      for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
+        strip.setPixelColor(i, strip.Color(0, 0, 255, 0 ) );
+      }
+      strip.show();
+      Serial.println("Card 1");
     }
-    else if (cardUID == 761) {
-      Serial1.println("102");
+    else if (cardUID == 761) { // Red
+      cardToSend = 102;
+      strip.show(); // Initialize all pixels to 'off'
+      for (int i = 0 ; i < 12 ; i++) {    //set complete ring to red color
+        strip.setPixelColor(i, strip.Color(255, 0, 0, 0 ) );
+      }
+      strip.show();
+      Serial.println("Card 2");
     }
-    else if (cardUID == 276) {
-      Serial1.println("103"); 
+    else if (cardUID == 276) { // Space - White
+       cardToSend = 103; 
+       strip.show(); // Initialize all pixels to 'off'
+       for (int i = 0 ; i < 12 ; i++) {    //set complete ring to white color
+        strip.setPixelColor(i, strip.Color(255, 255, 255, 0 ) );
+       }
+       strip.show();
+       Serial.println("Card 3");
     } else {
-      Serial1.println("!Bad_Nfc_Card"); 
+    }
+    if (cardToSend != 0){
+      Serial1.println(cardToSend);
+      delay(2000);// 1 second = 1000
+      strip.show(); // Initialize all pixels to 'off'
+      for (int i = 0 ; i < 12 ; i++) {    //set complete ring to green color
+        strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
+      }
+      strip.show();
     }
     cardUID = 0;    //reset the variable to remove chance of reading same card multiple times
     
@@ -365,6 +390,7 @@ void loop() {
   if ( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ) {
     chestButtonPrevValue = 1;
     Serial1.println("250");
+    Serial.println("Chest open.");
   }
 } // end loop
 

@@ -1,3 +1,5 @@
+
+
 /*
   laserArduino.ino   ---- Escape Room 1 Season 1
 Purpose:  - manage behaviour of all lasers 
@@ -101,35 +103,6 @@ void setupLaser(int laserPin){
   startLaser(laserPin);
 }
 /*end of pan tilt servo stuff  */
-//bluetooth stuff
-#ifndef BT_SETUP__
-#define BT_SETUP__
-const int btCodeLength = 3;
-byte *BTCode;
-
-void sendBTCode(char * strWord,int strLength){
-  Serial1.write( "0" ); //garbage
-  for (int i = 0; i < strLength; i++){
-    Serial1.write( strWord[i] );
-  }
-}
-
-byte* getBTCode(int strLength){
-  byte message[strLength];
-  if  (Serial1.available() ){
-    //char garbage = Serial1.read();
-    while(Serial1.available() ){
-      for (int i = 0; i < strLength ; i ++){
-        message[i] = Serial1.read();
-      }
-    }
-  }
-  else{
-    message[0] = ' ';
-  }
-  return message;
-}
-#endif
 
 
 

@@ -1,3 +1,5 @@
+
+
 /*
   mainCubeArduino
   lolShieldArduino.ino   ---- Escape Room 1 Season 1
@@ -6,7 +8,8 @@
             - manage the turning on and off of glowing wire
             - setup the checking of pwm values for cat5 puzzle
 */
-#//include <LEDStrip.h>
+
+#include <Adafruit_NeoPixel.h>
 #include <Keypad.h>
 #include <avr/pgmspace.h>  //AVR library for writing to ROM
 #include <Charliplexing.h> //Imports the library, which needs to be
@@ -24,7 +27,7 @@ char keys[ROWS][COLS] = {
 byte rowPins[ROWS] = {29, 28, 27, 26}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {25, 24, 23, 22}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
-String keypadAnswer = "1389527526";
+String keypadAnswer = "138952726";
 String tempKeypadAnswer = "";
 int keypadPassIsComplete = 0;
 
@@ -200,16 +203,16 @@ void blinkGlowingWire(int glowingWirePin, int msDelay) {
 
 void manageGlowingWire::blinkWire(int wire, int msDelay) {
   if (wire == 0) {
-    blinkGlowingWire(glOrange, 100);
+    blinkGlowingWire(glOrange, msDelay);
   } else if (wire == 1) {
-    blinkGlowingWire(glBlue, 100);
+    blinkGlowingWire(glBlue, msDelay);
   }
   else if (wire == 2) {
-    blinkGlowingWire(glGreen, 100);
+    blinkGlowingWire(glGreen, msDelay);
   } else if (wire == 3) {
-    blinkGlowingWire(glRed, 100);
+    blinkGlowingWire(glRed, msDelay);
   } else if (wire == 4) {
-    blinkGlowingWire(glPink, 100);
+    blinkGlowingWire(glPink, msDelay);
   } else {}
 }
 void manageGlowingWire::lightWire0 ( )
@@ -354,8 +357,6 @@ void setup() {
 }
 
 void loop() {
-
-
   if (Serial1.available() > 0) {
     inData = Serial1.readStringUntil('\n');
     //Serial.println("inData>" + inData + "<");
@@ -373,50 +374,68 @@ void loop() {
         //Serial.println("");
         Serial1.println("!");
 
-      } else if (token == "221") {                   // turn off all wires
+      } else if (token == "221") {                   // turn off all wires=-
         Serial.println("221");
         glowingWireManager.resetWire();
 
-      } else if (token == "222") {                    // turn on wire1
+      } else if (token == "222") {                    // turn on wire1 END GAME
         Serial.println("222");
         glowingWireManager.lightWire0();
 
-      } else if (token == "223") {                    // turn on wire 2
+      } else if (token == "223") {                    // turn on wire 2 KEYPAD
         glowingWireManager.lightWire1();
 
-      } else if (token == "224") {                    // turn on wire 3
-        glowingWireManager.lightWire2();
-
-      } else if (token == "225") {                    // turn on wire 4
+      } else if (token == "224") {                    // turn on wire 4 Green LOCK
         glowingWireManager.lightWire3();
 
-      } else if (token == "226") {                    // turn on wire 5
+      } else if (token == "225") {                    // turn on wire 5 NFC LOL board
         glowingWireManager.lightWire4();
-        
-      } else if (token == "227") {                    //turn off wire 1
+
+      } else if (token == "226") {                    //turn off wire 1 BAD END OF GAME
         glowingWireManager.turnOff0();
 
-      } else if (token == "240") {                    // clear the lol shield and blink wire 3
+      } else if (token == "227") {                    // turn on wire 3 nothing
+        glowingWireManager.lightWire2();
+
+      } else if (token == "240") {                    // clear the lol shield
         ClearShield();
-        glowingWireManager.blinkWire(3, 1000);
+        //glowingWireManager.blinkWire(4, 1000);
+
       } else if (token == "241") {                    //change/increment the pattern on display
+        //glowingWireManager.blinkWire(4, 800);
+        glowingWireManager.lightWire4();
         if (lolShieldPatternIndex == lolShieldPatternLength ) {
           lolShieldPatternIndex = 0;
         }
         ClearShield();
         turnOnSentence(lolShieldPatterns[lolShieldPatternIndex] );
         lolShieldPatternIndex++;
-        glowingWireManager.blinkWire(3, 1000);
+        //glowingWireManager.blinkWire(3, 1000);
 
       } else if (token == "317") {                    //reset keypad puzzle
         restartKeypad();
+
       } else if (token == "319") {                    // reset cat 5 puzzle
         resetCat5CablePuzzle();
+
       } else {
         Serial1.println("!");
       }
     } //end while inData
   } // end if serial available
+
+  //check if key on keypad are pressed > if entered password is correct then don't check again
+  int keypadResult = checkKeypadOutput();
+  if ( (keypadResult == 2 ) && (keypadPassIsComplete ) ) {
+    Serial1.println("318");
+    glowingWireManager.lightWire1();
+  } else if (keypadResult == 1) {
+    glowingWireManager.blinkWire(1, 200);
+  } else if (keypadResult == 3) {
+    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 100);
+    glowingWireManager.blinkWire(1, 100);
+  } else {}
 } // end loop
 
 /////////////////////////////////////////////////////////////////
