@@ -1,5 +1,5 @@
 from threading import Thread	#handle threading
-from Queue import *				#handle Queue functionality
+from queue import *				#handle Queue functionality
 import curses			#ncurses stuff	
 import time
 
@@ -143,31 +143,29 @@ def ncursesAdmin():
 								title.refresh()
 								body.refresh()
 								tempAnswer = ""
-								
-								
-								
+
 								title.clear()
 								body.clear()
 								title.addstr(userTitle)
 								title.refresh()
 								body.refresh()
 								tempAnswer = ""
-								startTime = time.time()
+								#startTime = time.time()
 								while isDonePassword == 0:
-									elapsedTime = time.time() - startTime
-									if  elapsedTime <= (minutes * 60):
-										if isDonePassword == 0 :
-											mins, secs = divmod( (elapsedTime*60) - minutes, 60)
-											timeformat = '{:02d}:{:02d}'.format(mins, secs)
+									#elapsedTime = time.time() - startTime
+									#if  elapsedTime <= (minutes * 60):
+									#	if isDonePassword == 0 :
+									#		mins, secs = divmod( (elapsedTime*60) - minutes, 60)
+									#		timeformat = '{:02d}:{:02d}'.format(mins, secs)
 											
-											timer.clear()
-											timer.addstr(timeformat)
-											timer.refresh()
-											body.refresh()
-										else:
-											elapsedTime = 0
-									else:
-										isDonePassword = 2
+									#		timer.clear()
+									#		timer.addstr(timeformat)
+									#		timer.refresh()
+									#		body.refresh()
+									#	else:
+									#		elapsedTime = 0
+									#else:
+									#	isDonePassword = 2
 									data = body.getch()
 									if data == 263 :
 										if tempAnswer != "":
