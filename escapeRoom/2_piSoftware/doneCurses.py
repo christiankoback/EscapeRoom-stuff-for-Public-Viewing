@@ -1,9 +1,9 @@
 from threading import Thread	#handle threading
-from queue import *				#handle Queue functionality
+import Queue 				#handle Queue functionality
 import curses			#ncurses stuff	
 import time
 
-hint_queue = Queue()
+hint_queue = Queue.Queue()
 
 #commands for various software sections
 hintCommand = "hint"
@@ -150,22 +150,18 @@ def ncursesAdmin():
 								title.refresh()
 								body.refresh()
 								tempAnswer = ""
-								#startTime = time.time()
+								startTime = time.time()
 								while isDonePassword == 0:
-									#elapsedTime = time.time() - startTime
-									#if  elapsedTime <= (minutes * 60):
-									#	if isDonePassword == 0 :
-									#		mins, secs = divmod( (elapsedTime*60) - minutes, 60)
-									#		timeformat = '{:02d}:{:02d}'.format(mins, secs)
-											
-									#		timer.clear()
-									#		timer.addstr(timeformat)
-									#		timer.refresh()
-									#		body.refresh()
-									#	else:
-									#		elapsedTime = 0
-									#else:
-									#	isDonePassword = 2
+									elapsedTime = time.time() - startTime
+									if  elapsedTime <= (minutes * 60):
+										mins, secs = divmod( minutes - (elapsedTime*60), 60)
+										timeformat = '{:02d}:{:02d}'.format(mins, secs)
+										timer.clear()
+										timer.addstr(timeformat)
+										timer.refresh()
+										body.refresh()
+									else:
+										isDonePassword = 2
 									data = body.getch()
 									if data == 263 :
 										if tempAnswer != "":
