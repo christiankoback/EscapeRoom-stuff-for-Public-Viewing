@@ -4,7 +4,7 @@
                   LED light strip
                   magnet release
 */
-
+#include<stdio.h>
             //led strip variables/setup
 int ledStripChange = 0;
 int ledGreenPin = 11;
@@ -100,6 +100,24 @@ void loop() {
         //Serial.println("MAGNET-OFF");
         turnOffMagnetBox();
         //Serial1.println("MAGNET-OFF");    
+
+        } else if (token == "303"){                    // HINT
+        //Serial.println("MAGNET-OFF");
+        analogWrite(ledBluePin, 255);
+        analogWrite(ledRedPin, 0);
+        analogWrite(ledGreenPin, 0);
+        delay(20000); // 20 seconds
+        analogWrite(ledBluePin, 0);
+        analogWrite(ledRedPin, redMax);
+        analogWrite(ledGreenPin, 0);
+        //Serial1.println("MAGNET-OFF");    
+
+        } else if (token == "999"){                    // RESET
+        turnOnMagnetBox();
+        
+        analogWrite(ledBluePin, 0);
+        analogWrite(ledRedPin, redMax);
+        analogWrite(ledGreenPin, 0);
       
        } else {
           //Serial.println("");

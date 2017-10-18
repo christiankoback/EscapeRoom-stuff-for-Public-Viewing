@@ -337,6 +337,19 @@ void loop() {
 
       } else if (token == "233") {                    //
         fadeInColor('b', 2);
+
+      } else if (token == "999") {                    // RESET
+        chestButtonPrevValue = 0;
+        pinMode(chestButtonPin, INPUT_PULLUP);
+
+        strip.setBrightness(BRIGHTNESS);
+        strip.begin();
+        strip.show(); // Initialize all pixels to 'off'
+        for (int i = 0 ; i < 12 ; i++) {    //set complete ring to green color
+          strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
+        }
+        strip.show();
+      
       } else {
         Serial1.println("!");
       }
@@ -376,7 +389,8 @@ void loop() {
     }
     if (cardToSend != 0){
       Serial1.println(cardToSend);
-      delay(2000);// 1 second = 1000
+      Serial.println(">" + cardToSend);
+      delay(3000);// 1 second = 1000
       strip.show(); // Initialize all pixels to 'off'
       for (int i = 0 ; i < 12 ; i++) {    //set complete ring to green color
         strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
@@ -389,6 +403,11 @@ void loop() {
   //checks if chest in box is open
   if ( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ) {
     chestButtonPrevValue = 1;
+    strip.show(); // Initialize all pixels to 'off'
+      for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
+        strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
+      }
+      strip.show();
     Serial1.println("250");
     Serial.println("Chest open.");
   }
