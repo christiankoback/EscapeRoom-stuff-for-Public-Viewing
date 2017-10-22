@@ -124,6 +124,10 @@ Adafruit_ADS1015 ads1015_4(0x4B);
 String inData;
 String token;
 
+int codeLen = 3;
+int tempLaser = 0;
+int panIndex = 0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -136,9 +140,11 @@ void setup() {
 
   setupServoLaser();
 
-
-
-    pinMode(25, OUTPUT);
+  
+  pinMode(22,OUTPUT);
+  pinMode(23,OUTPUT);
+  pinMode(24,OUTPUT);
+  pinMode(25, OUTPUT);
   pinMode(26, OUTPUT);
   pinMode(27, OUTPUT);
   pinMode(28, OUTPUT);
@@ -162,7 +168,9 @@ void setup() {
   pinMode(46, OUTPUT);
 
 
-  
+  digitalWrite(22, HIGH);
+  digitalWrite(23, HIGH);
+  digitalWrite(24, HIGH);
   digitalWrite(25, HIGH);
   digitalWrite(26, HIGH);
   digitalWrite(27, HIGH);
@@ -192,9 +200,7 @@ void setup() {
 
   
 }
-int codeLen = 3;
-int tempLaser = 0;
-int panIndex = 0;
+
 void loop() {
   /*  //checking sensor -- always
   servoSensor = ads1015_1.readADC_SingleEnded(0);

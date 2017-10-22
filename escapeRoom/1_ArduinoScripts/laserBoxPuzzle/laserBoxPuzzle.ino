@@ -3,16 +3,41 @@
 
 #include <Adafruit_ADS1015.h>   //include adafruit adc library
 
+//shape laser & sensor LEDs
+int shapeLaser = 22;
+int shapeSensor1  =23;
+int shapeSensor2 = 24;
+int shapeSensor3 = 25;
 
-
-//shape laser
-int shapeLaser = 10;
 int shapeSensorOfInterest = 0;
 int16_t shapeSensorValue = 0;
-int shapeSensorMin = 5;
-int shapeSensorMax = 100;
+int cubeMin = 10;
+int triangleMin = 500;
+int tunnelMin = 790;
+int shapeMax = 1000;
+ 
 int laserMinutes = 0;
 int laserSeconds = 0;
+
+int toggleLaserAmount = 0;        //program value
+const int LASER_ON_BEFORE_LASER_LOCATION_CHANGE = 2;  
+
+/*locations/angles for servo laser per shape sensor*/
+const int PANTILTSERVOLOCATIONS = 3;
+int panTiltIndex = 0;
+int panLocations_1[PANTILTSERVOLOCATIONS] = {13 , 30 , 35 };
+int tiltLocations_1[PANTILTSERVOLOCATIONS] = {30 , 45 , 25 };
+
+
+
+//FILL       THESE   IN       BEFORE      USE
+int panLocations_2[PANTILTSERVOLOCATIONS] = {  ,   ,   };
+int tiltLocations_2[PANTILTSERVOLOCATIONS] = {  ,  ,  };
+
+int panLocations_3[PANTILTSERVOLOCATIONS] = {  ,   ,   };
+int tiltLocations_3[PANTILTSERVOLOCATIONS] = {  ,  ,  };
+
+
 
 function updateTimeLaser(){
   time_t laserTime = now();
@@ -91,11 +116,36 @@ void loop() {
     if ( currentTime_seconds - t_seconds) >= 1 ){
       //toggle laser
       toogleLaser(currentTime_seconds, currentTime_minutes, laserSeconds, laserMinutes);
+      toggleLaserAmount++;
   }
   else if (currentTime_minutes - t_minutes == 1){
     //toggle laser
     toogleLaser(currentTime_seconds, currentTime_minutes, laserSeconds, laserMinutes);
   }
+
+  //change location of the servo laser
+  if (toggleLaserAmount >= LASER_ON_BEFORE_LASER_LOCATION_CHANGE){
+    //check to see what shape sensor is of interest, change location for specific laser-sensor match
+    if (shapeSensorOfInterest == 0){
+      panServo.write (panLocations_1[panTiltIndex]);
+      tiltServo.write (tiltLocations_1[panTiltIndex]);
+    }
+    else if(shapeSensorOfInterest == 1){
+      panServo.write (panLocations_2[panTiltIndex]);
+      tiltServo.write (tiltLocations_2[panTiltIndex]);
+    }
+    else if(shapeSensorOfInterest == 2){
+      panServo.write (panLocations_3[panTiltIndex]);
+      tiltServo.write (tiltLocations_3[panTiltIndex]);
+    }
+    else{}
+    panTiltIndex ++;
+    if (panTiltIndex > 2 ){
+      panTiltIndex = 0;
+    }
+  }
+  
+
 
   //check all sensors
   // check shape laser sensors if active
@@ -103,7 +153,7 @@ void loop() {
     shapeSensorValue = ads1015_1.readADC_SingleEnded(0);
 
     //check if valid sensor value, if valid then change sensor of interest to next sensor
-    if ( (shapeSensorValue > shapeSensorMin) && (shapeSensorValue < shapeSensorMax){
+    if ( (shapeSensorValue > cubeMin) && (shapeSensorValue < shapeMax){
       shapeSensorOfInterest = 1;
     }
   }
@@ -111,7 +161,7 @@ void loop() {
     shapeSensorValue = ads1015_1.readADC_SingleEnded(1);
 
     //check if valid sensor value, if valid then change sensor of interest to next sensor
-    if ( (shapeSensorValue > shapeSensorMin) && (shapeSensorValue < shapeSensorMax){
+    if ( (shapeSensorValue > triangleMin) && (shapeSensorValue < shapeMax){
       shapeSensorOfInterest = 2;
     }
   }
@@ -119,10 +169,13 @@ void loop() {
     shapeSensorValue = ads1015_1.readADC_SingleEnded(2);
 
     //check if valid sensor value, if valid then change sensor of interest to next sensor
-    if ( (shapeSensorValue > shapeSensorMin) && (shapeSensorValue < shapeSensorMax){
-      shapeSensorOfInterest = 2;
+    if ( (shapeSensorValue > tunnelMin) && (shapeSensorValue < shapeMax){
+      //shapeSensorOfInterest = 2;
+      //puzzle is COMPLETE
     }
   }
+
+
 
   // check all other laser sensors, if any sensors are NOT active then restart the box puzzle
   int tempSensor = ads1015_1.readADC_SingleEnded(3);
