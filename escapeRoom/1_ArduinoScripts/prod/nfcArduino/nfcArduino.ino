@@ -407,11 +407,16 @@ void loop() {
   if (chestButtonPrevValue > 10 ){
     //chest is open
     strip.show(); // Initialize all pixels to 'off'
-      for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
-        strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
-      }
-      strip.show();
-      Serial1.println("250");
+    for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
+      strip.setPixelColor(i, strip.Color(0, 0, 255, 0 ) );
+    }
+    strip.show();
+    Serial1.println("250");
+    delay(1000);
+    for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
+      strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
+    }
+    strip.show();
   }
   
 } // end loop
