@@ -340,7 +340,6 @@ void loop() {
 
       } else if (token == "999") {                    // RESET
         chestButtonPrevValue = 0;
-        pinMode(chestButtonPin, INPUT_PULLUP);
 
         strip.setBrightness(BRIGHTNESS);
         strip.begin();
@@ -400,16 +399,20 @@ void loop() {
     cardUID = 0;    //reset the variable to remove chance of reading same card multiple times
     
 
-  //checks if chest in box is open
-  if ( ( chestButtonPin == LOW ) && (chestButtonPrevValue == 0)  ) {
-    chestButtonPrevValue = 1;
+  //checks if chest in box is open, chest is in "open" state when lock is in a specific position. 
+  //"must be open more than 10 times for it to be officially open"
+  if  (digitalRead(chestButtonPin) == HIGH){
+    chestButtonPrevValue ++;
+  }
+  if (chestButtonPrevValue > 10 ){
+    //chest is open
     strip.show(); // Initialize all pixels to 'off'
       for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
         strip.setPixelColor(i, strip.Color(0, 255, 0, 0 ) );
       }
       strip.show();
-    Serial1.println("250");
-    Serial.println("Chest open.");
+      Serial1.println("250");
   }
+  
 } // end loop
 
