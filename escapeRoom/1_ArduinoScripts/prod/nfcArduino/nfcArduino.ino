@@ -258,6 +258,8 @@ uint8_t white(uint32_t c) {
 char chestButtonCode[] = "316";
 int chestButtonPin = 13;
 int chestButtonPrevValue = 0;
+int isButtonAlreadyTriggered = 0;
+int chestClosedCountResetNum = 10;      //number of 'chest is closed' before chest is closed check is sent (done on reset via Pi)
 
 /* cat5 puzzle -> transmit pwm signal    stuff*/
 int cat5e1_pin = 12;
@@ -340,7 +342,16 @@ void loop() {
 
       } else if (token == "999") {                    // RESET
         chestButtonPrevValue = 0;
-
+        isButtonAlreadyTriggered = 0;
+        int chestClosedCount = 0;
+        while(chestClosedCount < chestClosedCountResetNum){        
+          if ( digitalRead(chestButtonPin) == LOW) {
+            chestClosedCount ++;
+          }
+        }
+        if (chestClosedCount == chestClosedCountResetNum){
+          Serial1.println("997");
+        }
         strip.setBrightness(BRIGHTNESS);
         strip.begin();
         strip.show(); // Initialize all pixels to 'off'
@@ -401,11 +412,12 @@ void loop() {
 
   //checks if chest in box is open, chest is in "open" state when lock is in a specific position. 
   //"must be open more than 10 times for it to be officially open"
-  if  (digitalRead(chestButtonPin) == HIGH){
+  if(  (digitalRead(chestButtonPin) == HIGH) && ( isButtonAlreadyTriggered == 0) ) {
     chestButtonPrevValue ++;
   }
-  if (chestButtonPrevValue > 10 ){
+  if ( (chestButtonPrevValue > 10 ) && (isButtonAlreadyTriggered == 0)){
     //chest is open
+    isButtonAlreadyTriggered = 1;
     strip.show(); // Initialize all pixels to 'off'
     for (int i = 0 ; i < 12 ; i++) {    //set complete ring to blue color
       strip.setPixelColor(i, strip.Color(0, 0, 255, 0 ) );
