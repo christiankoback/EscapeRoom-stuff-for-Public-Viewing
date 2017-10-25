@@ -339,12 +339,12 @@ void loop() {
     }
     // check trip lasers and log lowest & highest values
     time_t currentTempTime = now();
-    int tempMinutes = minute(currentTempTime);
+    int tempSeconds = second(currentTempTime);
     time_t loopTime = now();
     int tripLaserMinTemp[TRIP_LASER_ADC_CHANNEL_AMOUNT] ={4096, 4096, 4096};
     int tripLaserMaxTemp[TRIP_LASER_ADC_CHANNEL_AMOUNT] ={0, 0, 0};
-    if (tempMinutes == 59){   //ensure while loop is 2 minute long, boundry cases -- 59 & 60 minutes of an hour
-      while( minute(loopTime) != 1){
+    if (tempSeconds == 59){   //ensure while loop is 2 seconds long, boundry cases -- 59 & 60 minutes of an hour
+      while( second(loopTime) != 1){
         for (int i = 0; i < TRIP_LASER_ADC_CHANNEL_AMOUNT; i ++){
           //get sensor value
           int16_t tempSensor = ads1015_4.readADC_SingleEnded(i);
@@ -360,8 +360,8 @@ void loop() {
         }
         loopTime = now();
       }
-    }else if (tempMinutes == 60){
-      while( minute(loopTime) != 2){
+    }else if (tempSeconds == 60){
+      while( second(loopTime) != 2){
         for (int i = 0; i < TRIP_LASER_ADC_CHANNEL_AMOUNT; i ++){
           //get sensor value
           int16_t tempSensor = ads1015_4.readADC_SingleEnded(i);
@@ -378,7 +378,7 @@ void loop() {
         loopTime = now();
       }
     }else{
-      while( ( minute(loopTime) - tempMinutes )  <= 2   ){
+      while( ( second(loopTime) - tempSeconds )  <= 2   ){
         for (int i = 0; i < TRIP_LASER_ADC_CHANNEL_AMOUNT; i ++){
           //get sensor value
           int16_t tempSensor = ads1015_4.readADC_SingleEnded(i);
