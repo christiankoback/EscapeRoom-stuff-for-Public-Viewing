@@ -417,12 +417,12 @@ void loop() {
 
       } else if (token == "319") {                    // reset cat 5 puzzle
         resetCat5CablePuzzle();
+<<<<<<< HEAD
 
       } else if (token == "999") {                    //RESET
         restartKeypad();
         ClearShield();
         glowingWireManager.resetWire();
-
       } else {
         Serial1.println("!");
       }
