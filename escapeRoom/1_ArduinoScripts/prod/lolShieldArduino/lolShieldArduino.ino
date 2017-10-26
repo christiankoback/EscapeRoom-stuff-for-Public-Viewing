@@ -20,7 +20,6 @@ const byte ROWS = 4;
 const byte COLS = 4;
 char keys[ROWS][COLS] = {
   {'1', '2', '3', 'A'},
-  {'4', '5', '6', 'B'},
   {'7', '8', '9', 'C'},
   {'*', '0', '#', 'D'}
 };
@@ -378,7 +377,7 @@ void loop() {
         Serial.println("221");
         glowingWireManager.resetWire();
 
-      } else if (token == "222") {                    // turn on wire1 END GAME
+      } else if (token == "222") {                    // turn on wire1 success laser
         Serial.println("222");
         glowingWireManager.lightWire0();
 
@@ -391,11 +390,25 @@ void loop() {
       } else if (token == "225") {                    // turn on wire 5 NFC LOL board
         glowingWireManager.lightWire4();
 
-      } else if (token == "226") {                    //turn off wire 1 BAD END OF GAME
-        glowingWireManager.turnOff0();
+      } else if (token == "226") {                    // BAD END OF GAME
+        
+        for (int i = 0; i<5;i++){
+          glowingWireManager.blinkWire(i, 800);
+        }
+     
+      } else if (token == "228") {                    // GOOD END OF GAME
+        
+        for (int i = 0; i<5;i++){
+          glowingWireManager.blinkWire(i, 800);
+        }
+        glowingWireManager.lightWire0();
+        glowingWireManager.lightWire1();
+        glowingWireManager.lightWire3();
+        glowingWireManager.lightWire4();
+        
 
       } else if (token == "227") {                    // turn on wire 3 nothing
-        glowingWireManager.lightWire2();
+        glowingWireManager.turnOff0();
 
       } else if (token == "240") {                    // clear the lol shield
         ClearShield();
@@ -417,7 +430,6 @@ void loop() {
 
       } else if (token == "319") {                    // reset cat 5 puzzle
         resetCat5CablePuzzle();
-<<<<<<< HEAD
 
       } else if (token == "999") {                    //RESET
         restartKeypad();
