@@ -113,11 +113,11 @@ void loop() {
         //Serial1.println("MAGNET-OFF");    
 
         } else if (token == "999"){                    // RESET
-        turnOnMagnetBox();
+          turnOnMagnetBox();
         
-        analogWrite(ledBluePin, 0);
-        analogWrite(ledRedPin, redMax);
-        analogWrite(ledGreenPin, 0);
+          analogWrite(ledBluePin, 0);
+          analogWrite(ledRedPin, redMax);
+          analogWrite(ledGreenPin, 0);
       
        } else {
           //Serial.println("");
