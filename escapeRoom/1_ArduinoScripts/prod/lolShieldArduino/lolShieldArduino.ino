@@ -406,8 +406,10 @@ void loop() {
         glowingWireManager.lightWire4();
         
 
-      } else if (token == "227") {                    // turn on wire 3 nothing
-        glowingWireManager.turnOff0();
+      } else if (token == "227") {                    // turn on wire laser orange wire
+        //glowingWireManager.turnOff0();
+        glowingWireManager.lightWire0();
+        digitalWrite(glOrange,LOW);
 
       } else if (token == "240") {                    // clear the lol shield
         ClearShield();

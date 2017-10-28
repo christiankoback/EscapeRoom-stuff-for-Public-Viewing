@@ -209,6 +209,9 @@ void tripSensorIsTripped(){
       }else if (isGameComplete == 1){
         Serial1.println(trippedLaser);
         isGameComplete = 2;       //failed game
+         for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
+             digitalWrite( i, LOW);
+          }
         digitalWrite(cubeShapeSensor, LOW);
         digitalWrite(triangleShapeSensor, LOW);
         digitalWrite(tunnelShapeSensor, LOW);
