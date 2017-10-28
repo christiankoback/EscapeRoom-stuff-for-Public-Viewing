@@ -48,6 +48,16 @@ int laserSeconds = 0;
 int toggleLaserAmount = 0;        //program value, number the laser has turned ON
 const int LASER_ON_BEFORE_LASER_LOCATION_CHANGE = 6;  //number of laser on/off cycles toggles before laser location is changed
 
+void setupShapeLaser_andSensors(){
+  pinMode(shapeLaser,OUTPUT);
+  pinMode(cubeShapeSensor,OUTPUT);
+  pinMode(triangleShapeSensor,OUTPUT);
+  pinMode(tunnelShapeSensor,OUTPUT);
+}
+
+
+
+
 
 /* pan-Tilt servo stuff 
     blue = pan   = pin 12
@@ -65,9 +75,6 @@ int panTiltIndex = 0;
 int panLocations_1[PANTILTSERVOLOCATIONS] = {13 , 60 , 35 };
 int tiltLocations_1[PANTILTSERVOLOCATIONS] = {30 , 40 , 25 };
 
-
-
-//FILL       THESE   IN       BEFORE      USE
 int panLocations_2[PANTILTSERVOLOCATIONS] = {130  ,  170 ,100   };
 int tiltLocations_2[PANTILTSERVOLOCATIONS] = {30  , 50 , 25 };
 
@@ -79,12 +86,7 @@ void setupServo(){
   panServo.attach(panPin);
   tiltServo.attach(tiltPin);
 }
-void setupShapeLaser_andSensors(){
-  pinMode(shapeLaser,OUTPUT);
-  pinMode(cubeShapeSensor,OUTPUT);
-  pinMode(triangleShapeSensor,OUTPUT);
-  pinMode(tunnelShapeSensor,OUTPUT);
-}
+
 
 //manage the toggling of laser & sensor LEDs
 void updateTimeLaser(){
@@ -93,37 +95,7 @@ void updateTimeLaser(){
   laserSeconds = second(laserTime);
   toggleLaserAmount++;
 }
-void toggleLaser( int mainSeconds, int mainMinutes, int laserSeconds, int laserMinutes){
-  int currState = digitalRead(shapeLaser);
-  
-  //if state is on, wait 3 seconds and turn off
-  int elapsedSeconds =  mainSeconds - laserSeconds;
-  int elapsedMinutes = mainMinutes - laserMinutes;
-  
-  if (currState == HIGH){
-    if (elapsedSeconds >= 3){
-      digitalWrite(shapeLaser,LOW);
-      updateTimeLaser();
-    }
-    else if (elapsedMinutes >= 1){
-      digitalWrite(shapeLaser,LOW);
-      updateTimeLaser();
-    }
-    else{}
-  }
-  else if (currState == LOW){
-    if (elapsedSeconds >= 1){
-      digitalWrite(shapeLaser,HIGH);
-      updateTimeLaser();
-    }
-    else if (elapsedMinutes >= 1){
-      digitalWrite(shapeLaser,HIGH);
-      updateTimeLaser();
-    }
-    else{}
-  }
-  else{}
-}
+
 void toggleEverythingOn(){
   digitalWrite(shapeLaser,HIGH);
   if ( shapeSensorOfInterest == 0){
@@ -157,28 +129,24 @@ void toggleLight(int light, int mainSeconds, int mainMinutes, int laserSeconds, 
   int elapsedMinutes = mainMinutes - laserMinutes;
   
   if (currState == HIGH){
-    if (elapsedSeconds >= 3){
+    if (elapsedMinutes >= 1){
       toggleEverythingOff();
       updateTimeLaser();
-    }
-    else if (elapsedMinutes >= 1){
+    }else if (elapsedSeconds >= 3){
       toggleEverythingOff();
       updateTimeLaser();
     }
     else{}
   }
   else if (currState == LOW){
-    if (elapsedSeconds >= 1){
+    if (elapsedMinutes >= 1){
       toggleEverythingOn();
       updateTimeLaser();
-    }
-    else if (elapsedMinutes >= 1){
+    }else if (elapsedSeconds >= 1){
       toggleEverythingOn();
       updateTimeLaser();
-    }
-    else{}
+    } else{}
   }
-  else{}
 }
 
 
@@ -193,16 +161,14 @@ Adafruit_ADS1015 ads1015_4(0x4A);
 
 const int TRIP_LASER_AMOUNT = 13;
 int adcChannels = 4;
+int tripLaserPercentError = 20;
 int tripLaserMin[TRIP_LASER_AMOUNT];
 int tripLaserMax[TRIP_LASER_AMOUNT];
-int tripLaserPercentError = 20;
-
 
 //variable to keep track of time
 time_t t;
 int t_seconds;
 int t_minutes;
-
 
     // Bluetooth variables/setupbles
 String inData;
@@ -227,24 +193,11 @@ int isReset = 0;
 void tripSensorIsTripped(){
   Serial1.println("400");
   shapeSensorOfInterest = 0;
+  correctValueCube = 0;
+  correctValueTriangle = 0;
+  isGameComplete = 0;
   digitalWrite(triangleShapeSensor   , LOW);
   digitalWrite(tunnelShapeSensor   , LOW);
-}
-
-void tripLaserConfig(int * laserArrayMin, int * laserArrayMax, int index, int count, int tempSensor){
-  if (count = 0){
-    laserArrayMin[index] = tempSensor;
-    laserArrayMax[index] = tempSensor;
-    count = 1;
-  }
-  //check if sensor value is less than current lowest value, if is then update
-  if ( tempSensor < laserArrayMin[index]){
-    laserArrayMin[index] = tempSensor;
-  }
-  //check if sensor value is greater than current highest value, if is then update
-  if (tempSensor > laserArrayMax[index]){
-    laserArrayMax[index] = tempSensor;
-  }
 }
 
 void setup() {
@@ -260,13 +213,11 @@ void setup() {
   t_minutes = minute(t);
   t_seconds = second(t);
 
+  //setup all lasers 
   for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
      pinMode(i, OUTPUT);
   }
-
-
   //isReset = 1;              //testing
-
 }
 
 void loop() {
@@ -277,8 +228,8 @@ void loop() {
     while (inData.length() > 2) {
       token = inData.substring(0,3);
       inData = inData.substring(3,inData.length());
-      //Serial.println("token>" + token + "<");
-      //Serial.println("inData>" + inData + "<");
+      Serial.println("token>" + token + "<");
+      Serial.println("inData>" + inData + "<");
       Serial.println("");
   
       if (token == "000") {                          // Reply to alive request DO NOT DELETE
@@ -304,23 +255,23 @@ void loop() {
   if (isGameComplete == 0){         //start game
     if (isLasersOn == 0){
       Serial.print(" laser is off");
-        isLasersOn = 1;
-        digitalWrite(shapeLaser,HIGH);
-        digitalWrite(cubeShapeSensor,HIGH);
-        panServo.write(panLocations_1[panTiltIndex] );
-        tiltServo.write(tiltLocations_1[panTiltIndex]);
+      isLasersOn = 1;
+      digitalWrite(shapeLaser,HIGH);
+      digitalWrite(cubeShapeSensor,HIGH);
+      panServo.write(panLocations_1[panTiltIndex] );
+      tiltServo.write(tiltLocations_1[panTiltIndex]);
 
-        for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
-           digitalWrite(i, HIGH);
-        }
+      //turn on all lasers
+      for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
+         digitalWrite(i, HIGH);
+      }
     }
        
     //get current time -- used to figure out non-blocking blinking of stuff
     time_t currentTime = now();
     int currentTime_seconds = second(currentTime);
     int currentTime_minutes = minute(currentTime);
-
-    //Serial.println("before blinking laser");
+    Serial.println("before blinking laser");
     
     //check if a second has passed, if passed then blink laser
     toggleLight(shapeLaser, currentTime_seconds, currentTime_minutes, laserSeconds, laserMinutes);
@@ -349,10 +300,8 @@ void loop() {
       }
       else{}
     }
-    Serial.println(" ");
-    Serial.print("sensor of interest: ");
-    Serial.println(shapeSensorOfInterest);
-    Serial.println( " ");
+    Serial.println(" "),Serial.print("sensor of interest: ");
+    Serial.println(shapeSensorOfInterest),Serial.println( " ");
     
     //check all sensors
     // check shape laser sensors if active
@@ -411,7 +360,6 @@ void loop() {
   Serial.println("at end of game play");
   }
   if (isReset == 1  ){
-    
     //turn off lasers 
     //turn off all shapes
     digitalWrite(shapeLaser, LOW);
@@ -419,13 +367,15 @@ void loop() {
     digitalWrite(triangleShapeSensor   , LOW);
     digitalWrite(tunnelShapeSensor   , LOW);
   
-   //turn off all trigger lasers -- pin 30-46
-    for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
-       digitalWrite(i, LOW);
+    //turn off all trigger lasers -- pin 30-46
+    if (digitalRead(firstPin_triggerLaser) == HIGH){
+      for (int i = firstPin_triggerLaser; i < (firstPin_triggerLaser + AMOUNT_OF_TRIGGER_LASERS); i ++){
+         digitalWrite(i, LOW);
+      }
     }
     isReset = 0;
-    //checkTripLasers = 1;      //testing
     isGameComplete = 0;
+    //checkTripLasers = 1;      //testing
   }
   
   if ( checkTripLasers == 1){
@@ -437,7 +387,7 @@ void loop() {
       for (int i = 0; i < adcChannels; i ++){
         if (adcCount == 0){
           tempSensor = ads1015_2.readADC_SingleEnded(i);
-          //Serial.print("sensor  "),Serial.print(i),Serial.print(" : "), Serial.println(tempSensor);
+          Serial.print("sensor  "),Serial.print(i),Serial.print(" : "), Serial.println(tempSensor);
           if (tempSensor < laserTripVal ){
             tripSensorIsTripped();
           }
@@ -456,7 +406,8 @@ void loop() {
         }else{}
       }
     }
+    Serial.println("done checking all trip sensors");
   }
 
-  //Serial.println("done loop");
+  Serial.println("done loop");
 }
