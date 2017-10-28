@@ -20,6 +20,7 @@ const byte ROWS = 4;
 const byte COLS = 4;
 char keys[ROWS][COLS] = {
   {'1', '2', '3', 'A'},
+  {'4', '5', '6', 'B'},
   {'7', '8', '9', 'C'},
   {'*', '0', '#', 'D'}
 };
@@ -365,8 +366,6 @@ void loop() {
       inData = inData.substring(3, inData.length());
       Serial.println("Token>" + token + "<");
       Serial.println("inData>" + inData + "<");
-      //Serial.println("token>" + token + "<");
-      //Serial.println("inData>" + inData + "<");
       //Serial.println("");
 
       if (token == "000") {                          // Reply to alive request DO NOT DELETE
