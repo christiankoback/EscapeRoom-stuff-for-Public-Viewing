@@ -64,8 +64,8 @@ int tiltLocations_3[PANTILTSERVOLOCATIONS] = {45  , 25 , 37 };
 
 /* static sensor values
   valid values for shape sensors*/
-int cubeMin = 20;
-int cubeMax = 100;
+int cubeMin = 5;
+int cubeMax = 2000;
 int triangleMin = 500;
 int triangleMax = 600;
 int tunnelMin = 780;
