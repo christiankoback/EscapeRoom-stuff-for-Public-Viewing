@@ -68,7 +68,7 @@ int checkKeypadOutput() {
 /* lol shield stuff */
 String charPart0 = "mskaigf";
 String charPart1 = "qxdo?nh";
-String charPart2 = "et1brvw";
+String charPart2 = "etlbrvw";
 String charPart3 = "upjycz4";
 String charPart4 = "2519638";
 int brightness = 7;
@@ -351,6 +351,8 @@ String token;
 void setup() {
   Serial.begin(9600);     // Debug Window
   Serial1.begin(9600);    // Bluetooth Communication - tx1,rx1
+
+  
   restartKeypad();        //init keypad
   initLoLShield();        //init lol shield
   glowingWireManager.manageGlowingWire::wireSetup();//init glowing wire

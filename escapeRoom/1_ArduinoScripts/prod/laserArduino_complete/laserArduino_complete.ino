@@ -305,11 +305,13 @@ void loop() {
     for (int adcCount = 0; adcCount < tripSensorAdcAmount; adcCount ++){
       for (int i = 0; i < adcChannels; i ++){
         if (adcCount == 0){
-          tempSensor = ads1015_2.readADC_SingleEnded(i);
-          Serial.print("sensor  "),Serial.print(i),Serial.print(" : "), Serial.println(tempSensor);
-          if (tempSensor < laserTripVal ){
-            tripSensorIsTripped();
-          }
+          if (i !=3){
+            tempSensor = ads1015_2.readADC_SingleEnded(i);
+            Serial.print("sensor  "),Serial.print(i),Serial.print(" : "), Serial.println(tempSensor);
+            if (tempSensor < laserTripVal ){
+              tripSensorIsTripped();
+            }
+          }else{}
         }
         else if (adcCount ==  1){
           tempSensor = ads1015_3.readADC_SingleEnded(i);
@@ -320,7 +322,7 @@ void loop() {
         else if ( adcCount == 2){
           tempSensor = ads1015_4.readADC_SingleEnded(i);
           if (tempSensor < laserTripVal  ){
-            tripSensorIsTripped();
+              tripSensorIsTripped();
           }
         }else{}
       }
@@ -396,6 +398,7 @@ void loop() {
             digitalWrite(cubeShapeSensor,LOW);
             digitalWrite(triangleShapeSensor,HIGH);
             shapeSensorOfInterest = 1;
+            panTiltIndex = 0;
             isTripSensorTripped = 0;    //reset trip sensor value
           }
           else{
@@ -415,6 +418,7 @@ void loop() {
           if ( (shapeSensorValue > triangleMin) && (shapeSensorValue < triangleMax) ) {
             digitalWrite(triangleShapeSensor,LOW); 
             digitalWrite(tunnelShapeSensor,HIGH);
+            panTiltIndex = 0;
             shapeSensorOfInterest = 2;
           }
           else{
