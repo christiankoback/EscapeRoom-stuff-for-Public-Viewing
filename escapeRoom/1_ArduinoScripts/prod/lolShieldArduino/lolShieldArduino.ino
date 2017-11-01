@@ -331,8 +331,8 @@ void checkCat5Puzzle() {
 
 manageGlowingWire glowingWireManager;
 
-const int lolShieldPatternLength = 3;
-String lolShieldPatterns[lolShieldPatternLength] = {"whic" , "hplanet" , "hasoxygen?" };
+const int lolShieldPatternLength = 4;
+String lolShieldPatterns[lolShieldPatternLength] = {"whic" , "planet" , "has","oxygen?" };
 int lolShieldPatternIndex = 0;
 
 
