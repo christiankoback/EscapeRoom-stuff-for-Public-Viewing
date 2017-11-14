@@ -315,12 +315,6 @@ void loop() {
         }
         else if (adcCount ==  1){
           tempSensor = ads1015_3.readADC_SingleEnded(i);
-          if (tempSensor < laserTripVal  ){
-            tripSensorIsTripped();
-          }
-        }
-        else if ( adcCount == 2){
-          tempSensor = ads1015_4.readADC_SingleEnded(i);
           if (i != 3){
             tempSensor = ads1015_2.readADC_SingleEnded(i);
             Serial.print("sensor  "),Serial.print(i),Serial.print(" : "), Serial.println(tempSensor);
@@ -328,6 +322,12 @@ void loop() {
               tripSensorIsTripped();
             }
           }else{}
+        }
+        else if ( adcCount == 2){
+          tempSensor = ads1015_4.readADC_SingleEnded(i);
+          if (tempSensor < laserTripVal  ){
+            tripSensorIsTripped();
+          }
         }else{}
       }
     }
