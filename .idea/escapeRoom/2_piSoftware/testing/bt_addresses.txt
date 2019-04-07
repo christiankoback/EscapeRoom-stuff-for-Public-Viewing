@@ -1,9 +1,0 @@
-BT address 1-nfc arduino
-	98:D3:31:FC:59:F0
-BT ADDRESS 2 - magnet ardino
-	98:D3:31:FC:5A:09
-BT ADDRESS 3 - main cube arduino
-	98:D3:31:FC:6C:97
-BT ADDRESS 4 - laser arduino
-	98:D3:31:FD:68:77
-	
